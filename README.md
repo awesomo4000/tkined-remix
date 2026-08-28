@@ -14,11 +14,68 @@ Builds and runs on macOS (Apple Silicon) against Tcl/Tk 8.6.
 
     brew install tcl-tk@8      # macOS; any prefix with tclConfig.sh works
     ./tools/build.sh
-    ./bin/scotty               # Tcl shell with Tnm preloaded
-    ./bin/tkined               # network editor GUI
 
 Build output goes to `build/` and is gitignored. Nothing is installed
 outside the repository.
+
+## Running it
+
+### The network editor
+
+    ./bin/tkined
+
+Opens the Tkined map editor. To draw a network: use the toolbar to place
+nodes and networks on the canvas, select them, then drive them from the
+**Tools** menu, which loads the bundled applications.
+
+Useful things to try, all from the Tools menu with objects selected:
+
+- **IP-Monitor** — reachability and round-trip times.
+- **IP-Discover** — walk a subnet and place what it finds on the map.
+- **SNMP-Browser** — browse the MIB tree of an SNMP-capable device.
+- **SNMP-Monitor** — graph SNMP values over time as stripcharts.
+
+Note: anything using ICMP (ping, traceroute) currently fails unless
+`build/bin/nmicmpd` is setuid root. See **Known limitations**. SNMP, DNS
+and Sun RPC tools work as an unprivileged user.
+
+Open a saved map directly:
+
+    ./bin/tkined mymap.tki
+
+### The shell
+
+`./bin/scotty` is `tclsh` with Tnm preloaded — the quickest way to explore:
+
+    $ ./bin/scotty
+    % package require Tnm
+    3.1.3
+    % namespace import Tnm::*
+
+    # resolve names and OIDs from the compiled-in MIBs
+    % mib oid sysDescr
+    1.3.6.1.2.1.1.1
+    % mib name 1.3.6.1.2.1.1.5.0
+    SNMPv2-MIB::sysName.0
+    % mib syntax sysUpTime
+    TimeTicks
+
+    # DNS
+    % dns address localhost
+    127.0.0.1
+
+    # query a real device (needs a reachable SNMP agent)
+    % set s [snmp session -address 192.0.2.1 -community public]
+    % $s get sysDescr.0
+
+Run a script instead of interactively:
+
+    ./bin/scotty myscript.tcl
+
+The 28 bundled applications in `tkined/apps/` are ordinary Tcl programs
+and are worth reading as examples.
+
+## Portability
 
 ## Portability
 

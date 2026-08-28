@@ -66,17 +66,19 @@ These were confirmed by reading the source, and the plan depends on them:
      |
     01 test harness + CI      <- gate mechanism for everything after it
      |
-     +-- 02 ICMP without root
+     +-- 02 ICMP without root            (independent of toolchain line)
      |
     03 vendor Tcl/Tk          <- removes the external dependency
      |
-    04 Tcl/Tk 9 port          <- cheap once the version is pinned in-tree
+     +-- 04 Tcl/Tk 9 port     <- upstream branch exists; rebase it
      |
-    05 Zig build system
+    05 C modernization        <- ISO C; unblocks Zig; parallel with 03/04
      |
-     +-- 06 distributed agents over SSH
+    06 Zig build (0.16.0)
      |
-    07 UI modernization
+     +-- 07 distributed agents over SSH  (independent of toolchain line)
+     |
+    08 UI modernization
 
 **Why vendoring precedes the Tcl 9 port:** vendoring pins an exact
 Tcl/Tk source in-tree. "Move to 9" then becomes choosing what to vendor
@@ -84,8 +86,9 @@ and fixing compile errors against a known, unchanging target, rather than
 chasing a Homebrew version that can move underneath us. It also makes the
 Zig build far simpler, since there is no external prefix to discover.
 
-02 and 06/07 are independent of the toolchain line and can proceed in
-parallel with it.
+02 and 07/08 are independent of the toolchain line and can proceed in
+parallel with it. 05 is independent of the Tcl version and can run
+alongside 03/04.
 
 ## Risks
 
@@ -93,6 +96,7 @@ parallel with it.
 |---|---|
 | Tcl 9 port is larger than expected | 03 pins the target first; keep an 8.6 build green in CI until 9 passes |
 | Zig cannot express some autotools probe | Keep autotools working in parallel; Zig must pass the same gate before autotools is retired |
+| Suppressed `-Wno-` flags hide real type bugs | 05 removes them one class at a time, each with a gate |
 | The `ined` protocol has no authentication | Never expose it on a socket; SSH transport only, bound to loopback |
 | Upstream 64-bit bugs surface as we go | 01 gives us a suite; convert each into a failing test first |
 | Tk UI work balloons | Treat 07 as opt-in theming over existing widgets, not a rewrite |
