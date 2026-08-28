@@ -75,7 +75,39 @@ Run a script instead of interactively:
 The 28 bundled applications in `tkined/apps/` are ordinary Tcl programs
 and are worth reading as examples.
 
+## Seeing it with real data
+
+    ./tools/local-map.sh            # build a map, write .tki + PNG
+    SHOT=1 ./tools/local-map.sh     # also open the editor and capture it
+
+Builds a Tkined map of the local network from passive sources only: the
+routing table, interface config, the ARP cache and DNS. No ICMP and no
+root, so it works today. Output lands in `build/`:
+
+- `local-network.tki` -- open it with `./bin/tkined build/local-network.tki`
+- `local-network.png` -- offscreen PostScript render (no icons; see below)
+- `tkined-window.png` -- the real editor window, with `SHOT=1`
+
+Note that the offscreen render omits icons: Tk on Aqua cannot emit canvas
+bitmap items to PostScript. See `specs/08-ui-modernization.md`.
+
 ## Portability
+
+## Seeing it with real data
+
+    ./tools/local-map.sh            # build a map, write .tki + PNG
+    SHOT=1 ./tools/local-map.sh     # also open the editor and capture it
+
+Builds a Tkined map of the local network from passive sources only: the
+routing table, interface config, the ARP cache and DNS. No ICMP and no
+root, so it works today. Output lands in `build/`:
+
+- `local-network.tki` -- open it with `./bin/tkined build/local-network.tki`
+- `local-network.png` -- offscreen PostScript render (no icons; see below)
+- `tkined-window.png` -- the real editor window, with `SHOT=1`
+
+Note that the offscreen render omits icons: Tk on Aqua cannot emit canvas
+bitmap items to PostScript. See `specs/08-ui-modernization.md`.
 
 ## Portability
 

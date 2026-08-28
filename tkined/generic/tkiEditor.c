@@ -689,6 +689,19 @@ Tki_EditorAttribute (editor, interp, argc, argv)
 
     if (argc == 0) return TCL_OK;
 
+    /*
+     * An object that has not been attached to an editor yet has a NULL
+     * editor pointer. Callers such as m_icon reach this before the
+     * attachment happens, and dereferencing here segfaulted the whole
+     * application on what is only a Tcl level mistake. Report no
+     * attribute instead and let the caller fall back to its default.
+     */
+
+    if (editor == NULL) {
+	Tcl_ResetResult (interp);
+	return TCL_OK;
+    }
+
     if (argc == 2) {
 	int isnew;
 

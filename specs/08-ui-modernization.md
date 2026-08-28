@@ -66,3 +66,43 @@ starting 7b.
 Sequence 7a before 04 (Tk 9) or after, not during. Doing both at once
 makes it impossible to tell whether a visual regression came from the
 port or the theming.
+
+
+## Findings from building a real map (2026-08-28)
+
+Discovered while generating a map from live local network data with
+`tools/local-map.sh`. All verified, not inferred.
+
+1. **A NULL editor pointer segfaulted the application.** An object created
+   with `NODE create` but not yet attached to an editor has
+   `object->editor == NULL`. `m_icon` passed it straight to
+   `Tki_EditorAttribute`, which dereferenced it. A plain Tcl-level mistake
+   crashed the whole app. Fixed with a guard in `tkiEditor.c`.
+
+2. **Only 19 bitmaps are compiled in** (`icon`, `noicon`, `node`, `group`,
+   `reference`, `graph`, `corner`, `network`, `link`, the toolbar set).
+   Every other icon is an `.xbm` on disk and needs Tk's `@path` form.
+   Passing a bare name such as `machine` **silently does nothing**: no
+   error is raised and the object keeps its default icon. Silent failure
+   is the problem here, not the path requirement.
+
+3. **`machine.xbm` does not render through the object API** even via
+   `@path`, while `mac.xbm` and `router.xbm` do. The file is structurally
+   valid: 40x29 with the expected 145 data bytes, it has a mask like the
+   others, and plain Tk loads it correctly with the right bbox. So this is
+   in tkined's icon handling, not Tk and not the file. Unresolved;
+   `tools/local-map.tcl` uses `pc` instead.
+
+4. **Icons do not survive a save/load round trip.** `$editor save` writes
+   the icon as a bare basename, dropping the `@` and the directory, so
+   reloading a map falls back to default icons.
+
+5. **Tk on Aqua cannot emit bitmap items to PostScript.** The canvas
+   PostScript dump renders links, labels and network segments but omits
+   every icon. Pinning `-foreground`/`-background` to concrete colors, the
+   trick `Editor__postscript` uses for backgrounds, does not help. This
+   limits the offscreen render path, which is otherwise the way to
+   generate map images without mapping a window.
+
+Items 2, 3 and 4 are icon-handling bugs and belong together in whichever
+chunk touches icon assets (7c in the table above).
