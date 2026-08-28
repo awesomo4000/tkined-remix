@@ -10,6 +10,7 @@ jobs:
   macos:
     name: macOS build and gate
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -27,9 +28,14 @@ jobs:
       # Advisory: environment- and network-dependent suites. Reported for
       # visibility, never allowed to fail the build. See
       # specs/test-baseline.md for why each is classified this way.
+      # Advisory only: the gate already ran above, and these suites need
+      # network the runner may not have, so each can burn its full timeout.
       - name: Advisory suites
         continue-on-error: true
-        run: ./tools/test.sh all
+        timeout-minutes: 8
+        env:
+          TIMEOUT_SECS: 45
+        run: ./tools/test.sh advisory
 
       - name: Upload logs on failure
         if: failure()
