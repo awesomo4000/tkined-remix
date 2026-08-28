@@ -3,6 +3,7 @@
 #
 #   ./tools/test.sh            gate suites only (the merge gate)
 #   ./tools/test.sh all        every suite, including advisory ones
+#   ./tools/test.sh advisory   only the advisory + quarantined suites
 #   ./tools/test.sh <name>...  named suites, e.g. ./tools/test.sh mib udp
 #
 # Exit status is non-zero if any GATE suite fails. Advisory suites are
@@ -81,17 +82,25 @@ mode="${1:-gate}"
 rc_total=0
 
 case "$mode" in
-    gate) gate="$GATE_SUITES"; advisory="" ;;
-    all)  gate="$GATE_SUITES"; advisory="$ADVISORY_SUITES $QUARANTINED" ;;
+    gate)     gate="$GATE_SUITES"; advisory="" ;;
+    all)      gate="$GATE_SUITES"; advisory="$ADVISORY_SUITES $QUARANTINED" ;;
+    advisory) gate=""; advisory="$ADVISORY_SUITES $QUARANTINED" ;;
     *)    gate="$*"; advisory="" ;;
 esac
 
-echo "== gate suites =="
-for s in $gate; do run_suite "$s" gate || rc_total=1; done
+if [ -n "$gate" ]; then
+    echo "== gate suites =="
+    for s in $gate; do run_suite "$s" gate || rc_total=1; done
+fi
 
 if [ -n "$advisory" ]; then
     echo "== advisory suites (never gate) =="
     for s in $advisory; do run_suite "$s" advisory || true; done
+fi
+
+if [ "$mode" = "advisory" ]; then
+    if [ "$rc_total" -eq 0 ]; then echo "PASS (advisory)"; fi
+    exit 0
 fi
 
 echo "== tkined smoke =="
