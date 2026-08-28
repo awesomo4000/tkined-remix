@@ -1,0 +1,10 @@
+#!/bin/sh
+# scotty: Tcl shell with the Tnm network-management extension preloaded.
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+. "$ROOT/tools/tcl-env.sh"
+BUILD="$ROOT/build"
+TNM_LIBRARY="$(echo "$BUILD"/lib/Tnm*)";       export TNM_LIBRARY
+TKINED_LIBRARY="$(echo "$BUILD"/lib/Tkined*)"; export TKINED_LIBRARY
+TCLLIBPATH="$BUILD/lib";                       export TCLLIBPATH
+PATH="$BUILD/bin:$PATH";                       export PATH
+exec "$(echo "$BUILD"/bin/scotty*)" "$@"

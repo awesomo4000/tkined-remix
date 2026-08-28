@@ -1,6 +1,55 @@
+# --- build output ---
+build/
+install/
+
+# --- autotools generated ---
 autom4te.cache/
 configure
+config.h
+config.h.in
+config.status
+config.log
+Makefile
+pkgIndex.tcl
+stamp-h*
+
+# --- compiled objects ---
 *.o
-*.n
 *.so
+*.dylib
+*.dSYM/
+*.a
+
+# --- rpcgen output (regenerated from *.x) ---
+tnm/ether.h
+tnm/ether_clnt.c
+tnm/ether_svc.c
+tnm/ether_xdr.c
+tnm/mount.h
+tnm/mount_clnt.c
+tnm/mount_svc.c
+tnm/mount_xdr.c
+tnm/pcnfsd.h
+tnm/pcnfsd_clnt.c
+tnm/pcnfsd_svc.c
+tnm/pcnfsd_xdr.c
+tnm/rstat.h
+tnm/rstat_clnt.c
+tnm/rstat_svc.c
+tnm/rstat_xdr.c
+
+# --- built binaries ---
 tnm/scotty
+tnm/nmicmpd
+tnm/nmtrapd
+tkined/tkined
+
+# --- generated man pages ---
+*.n
+
+# --- editor/OS noise ---
+.DS_Store
+*~
+
+# rpcgen inputs copied into tnm/ by the Makefile
+tnm/*.x
