@@ -1,4 +1,7 @@
-# 01 — Test harness and CI gates
+# 01 — Test harness and CI gates  [DONE]
+
+**Status:** complete. Delivered `tools/test.sh`, `tests/tkined-smoke.{sh,tcl}`,
+`tests/relocation.sh`, `.github/workflows/ci.yml`, `specs/test-baseline.md`.
 
 **Depends on:** 00. **Blocks:** everything after it.
 
@@ -62,3 +65,18 @@ gate, "it still works" is an opinion. This is small and unblocks the rest.
 
 Whether to gate on `loopback` tests. Runner ICMP/UDP behavior is not
 guaranteed. Start advisory, promote once observed stable.
+
+
+## Outcome
+
+Delivered as specified. Two findings changed the plan while doing it:
+
+1. **`netdb` was misclassified.** It looked like a safe offline suite and
+   in fact hung indefinitely. Measuring before classifying was the whole
+   value of this spec.
+2. **`knownBug64BitArchitecture` was silently broken on arm64**, so
+   known-buggy tests were running instead of skipping. Fixing that guard
+   removed 6 failures and the hang. See `specs/test-baseline.md`.
+
+The open question about gating loopback suites was resolved by keeping
+them advisory for now, pending observation on CI runners.

@@ -21,10 +21,12 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 set verbosity [configure -verbose]
 configure -verbose {body error skip}
 
-testConstraint knownBug64BitArchitecture [expr {!(
-			       ($::tcl_platform(machine) == "amd64")
-			       || ($::tcl_platform(machine) == "x86_64")
-			       )}]
+# The bug these tests cover is an LP64 bug, so detect pointer size rather
+# than enumerating CPU names. The original list omitted arm64, which meant
+# the guard silently stopped working on Apple Silicon: netdb ip range then
+# ran and looped forever instead of being skipped.
+testConstraint knownBug64BitArchitecture \
+    [expr {$::tcl_platform(pointerSize) != 8}]
 
 package require Tnm 3.0
 catch {
