@@ -21,7 +21,7 @@ suggest. `netdb` in particular looked like a safe offline suite and was not.
 
 | Suite | Result | Note |
 |---|---|---|
-| `netdb` | 54 passed, **1 failed** | `netdb-2.7` walks the local hosts database; outcome depends on `/etc/hosts` |
+| `netdb` | 57 passed, 0 failed | reads local databases; promotion to gate pending CI observation |
 | `udp` | 32 passed, 0 failed | loopback |
 | `snmp` | 68 passed, 14 skipped, 0 failed | loopback agent |
 | `sunrpc` | 29 passed, 16 skipped, 0 failed | local RPC services |
@@ -35,7 +35,7 @@ Promote to gate once observed stable on CI runners.
 | Suite | Result | Tracked by |
 |---|---|---|
 | `icmp` | **15 failed** | spec 02 — `nmicmpd` needs `SOCK_RAW`, hence root |
-| `l.smx` | error | hardcodes the binary name `scotty3.1.0`; ours is `scotty3.1.3`. Also needs a running SMX engine |
+| `l.smx` | 19 passed, **27 failed** | SMX engine lifecycle; see below |
 
 ## Fixed while establishing this baseline
 
@@ -53,10 +53,11 @@ pointer-size check, which is architecture-agnostic:
 Effect: `mib` 2 failures -> 0, `snmp` 4 failures -> 0, and `netdb` went
 from hanging to passing.
 
-## Root cause of the netdb hang
+## Fixed: the netdb hang (LP64 bug in `netdb ip range`)
 
-Worth recording because it is the clearest example of the 64-bit class of
-bug this project inherits, and it is not yet fixed — only skipped.
+The clearest example of the 64-bit class of bug this project inherits.
+**Now fixed** in `tnm/generic/tnmNetdb.c`; `netdb-6.6` and `netdb-6.7` are
+no longer skipped and pass.
 
 `netdb ip range` in `tnm/generic/tnmNetdb.c`:
 
@@ -74,8 +75,35 @@ On a 32-bit `unsigned long`, `~mask` is `3` and the loop is correct.
 This is precisely why upstream documented that scotty "only operates
 correctly on 32 bit platforms".
 
-Fixing it belongs to spec 05 (C modernization). A test that currently
-skips should be un-skipped as part of that fix.
+The fix computes the range in 32-bit arithmetic. Verified across mask
+sizes: /16 -> 65534, /24 -> 254, /29 -> 6, /30 -> 2, /32 -> empty.
+
+## Fixed: netdb-2.7 assumed every alias resolves forward
+
+The test walked host aliases and required each to resolve back to the same
+address. On macOS the resolver returns `1.0.0.127.in-addr.arpa`, the PTR
+name, as an alias of 127.0.0.1, and that has no A record.
+
+Checked against `gethostbyaddr(3)` directly: the C library returns exactly
+that alias, so **Tnm is correct** and the test's assumption was wrong. The
+test now skips aliases that do not resolve forward, which preserves what
+it was actually verifying.
+
+## Still open: l.smx
+
+Was failing outright because it hardcoded the binary name `scotty3.1.0`.
+It now uses `[info nameofexecutable]` and runs: 19 passed, 27 failed.
+
+The remaining failures are an engine lifecycle problem. The suite starts a
+listener, launches an engine as a subprocess, and the engine does connect
+(verified: it accepts from `::1`). The engine script then ends, `scotty`
+exits at EOF, and the suite reports `smx peer gone away` on the next
+command. Adding `vwait forever` to keep the engine alive was tried and is
+**not** the fix: it hangs the whole suite.
+
+Script MIB is not on the roadmap, so this stays quarantined rather than
+absorbing more time. Anyone picking it up should start at `startengine`
+in `tnm/tests/l.smx.test`.
 
 ## Notes for anyone debugging these
 

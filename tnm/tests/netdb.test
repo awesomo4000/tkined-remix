@@ -67,7 +67,14 @@ test netdb-2.7 {check "netdb hosts" command} {
 	# aliases command failes with 'unknown IP address "0.0.0.0"'
 	if {[catch {netdb hosts aliases $address} aliases]} continue
 	foreach alias $aliases {
-	    if {[netdb hosts address $alias] != $address} {
+	    # Not every alias is forward resolvable. On macOS the resolver
+	    # returns the in-addr.arpa PTR name as an alias of 127.0.0.1,
+	    # and that has no A record. Verified against gethostbyaddr(3):
+	    # Tnm reports exactly what the C library returns, so skipping
+	    # these checks the round trip we care about without asserting
+	    # something the resolver never promised.
+	    if {[catch {netdb hosts address $alias} resolved]} continue
+	    if {$resolved != $address} {
 		lappend result $alias
 	    }
 	}
@@ -175,14 +182,10 @@ test netdb-6.4 {check "netdb ip" command} {
 test netdb-6.5 {check "netdb ip" command} {
     netdb ip class 127.0.0.1
 } {loopback}
-test netdb-6.6 {check "netdb ip" command} -constraints {
-    knownBug64BitArchitecture
-} -body {
+test netdb-6.6 {check "netdb ip" command} -body {
     llength [netdb ip range 134.169.34.0 255.255.255.0]
 } -result {254}
-test netdb-6.7 {check "netdb ip" command} -constraints {
-    knownBug64BitArchitecture
-} -body {
+test netdb-6.7 {check "netdb ip" command} -body {
     netdb ip range 134.169.34.0 255.255.255.248
 } -result {134.169.34.1 134.169.34.2 134.169.34.3 134.169.34.4 134.169.34.5 134.169.34.6}
 test netdb-6.8 {check "netdb ip" command} {

@@ -63,7 +63,10 @@ proc startengine {} {
 	package require TnmSmxProfiles 3.0
 	namespace import TnmSmxProfiles::*
     } $file
-    exec scotty3.1.0 $file &
+    # Was hardcoded to scotty3.1.0, which no longer exists. The engine
+    # must be the same interpreter running this suite, so ask for it
+    # rather than guessing a version number.
+    exec [info nameofexecutable] $file &
     vwait smx(channel)
 }
 
