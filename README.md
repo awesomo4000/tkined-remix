@@ -12,7 +12,7 @@ Builds and runs on macOS (Apple Silicon) against Tcl/Tk 8.6.
 
 ## Quick start
 
-    brew install tcl-tk@8      # macOS; any prefix with tclConfig.sh works
+    brew install tcl-tk@8 autoconf    # autoconf generates configure, which is not committed
     ./tools/build.sh
 
 Build output goes to `build/` and is gitignored. Nothing is installed
