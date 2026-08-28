@@ -37,10 +37,31 @@ if [ ! -x "$SCOTTY" ] || [ ! -d "$BUILD/lib" ]; then
     exit 1
 fi
 
-# GNU timeout is 'timeout' or 'gtimeout' depending on the platform.
-if command -v timeout >/dev/null 2>&1; then TO=timeout
-elif command -v gtimeout >/dev/null 2>&1; then TO=gtimeout
-else TO=""; fi
+# Do not depend on GNU coreutils: macOS has no timeout(1), and relying on
+# it silently disabled every per-suite limit on CI. This watchdog is
+# portable POSIX sh. Returns 143 when it had to kill the child, matching
+# what GNU timeout reports for SIGTERM.
+run_with_timeout() {
+    _secs="$1"; _out="$2"; shift 2
+    "$@" >"$_out" 2>&1 &
+    _pid=$!
+    (
+        _n=0
+        while [ "$_n" -lt "$_secs" ]; do
+            kill -0 "$_pid" 2>/dev/null || exit 0
+            sleep 1
+            _n=$((_n + 1))
+        done
+        kill -TERM "$_pid" 2>/dev/null
+        sleep 2
+        kill -KILL "$_pid" 2>/dev/null
+    ) 2>/dev/null &
+    _wd=$!
+    wait "$_pid" 2>/dev/null; _rc=$?
+    kill "$_wd" 2>/dev/null
+    wait "$_wd" 2>/dev/null
+    return "$_rc"
+}
 
 run_suite() {
     name="$1"; kind="$2"
@@ -48,12 +69,11 @@ run_suite() {
     if [ ! -f "$file" ]; then
         printf '  %-10s SKIP (no such suite)\n' "$name"; return 0
     fi
-    if [ -n "$TO" ]; then
-        out=$(cd "$TESTDIR" && $TO "$TIMEOUT_SECS" "$SCOTTY" "$name.test" </dev/null 2>&1)
-    else
-        out=$(cd "$TESTDIR" && "$SCOTTY" "$name.test" </dev/null 2>&1)
-    fi
+    raw="$BUILD/test-$name.raw"
+    ( cd "$TESTDIR" && run_with_timeout "$TIMEOUT_SECS" "$raw" "$SCOTTY" "$name.test" </dev/null )
     rc=$?
+    out=$(cat "$raw" 2>/dev/null)
+    rm -f "$raw"
     line=$(printf '%s\n' "$out" | grep -E "^$name\.test:.*Total" | tail -1)
 
     if [ "$rc" -eq 124 ] || [ "$rc" -eq 143 ]; then

@@ -84,3 +84,7 @@ skips should be un-skipped as part of that fix.
   buffering hides where it stopped. Redirect to a file and flush.
 - When sampling a hung process, sample the actual child, not the
   `timeout`/`gtimeout` wrapper.
+- Do not rely on `timeout(1)`: macOS does not ship it, and it is only
+  present locally via Homebrew coreutils. `tools/test.sh` uses its own
+  portable watchdog, because depending on coreutils silently disabled
+  every per-suite limit on CI.
