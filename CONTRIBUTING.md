@@ -34,11 +34,19 @@ Use `--no-ff` so each chunk stays visible as a unit in history.
 A chunk is done when its spec's **Gate** section passes, not when the code
 looks right. Every spec states its gate explicitly.
 
-Until spec 01 lands there is no `tools/test.sh`. In the meantime the
-minimum bar before merging is:
+Run the gate before merging:
 
-    ./tools/build.sh
-    echo 'puts [package require Tnm]' | ./bin/scotty
+    ./tools/build.sh      # build into build/
+    ./tools/test.sh       # gate suites + tkined smoke + relocation
+
+Other modes:
+
+    ./tools/test.sh all       # add advisory + quarantined suites
+    ./tools/test.sh mib udp   # named suites
+
+Only the gate suites can fail the run. Advisory suites are reported but
+never block, and quarantined ones are tracked by a spec. Classification
+and the current numbers live in `specs/test-baseline.md`.
 
 ## Spec lifecycle
 

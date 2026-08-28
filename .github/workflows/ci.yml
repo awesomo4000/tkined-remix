@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  macos:
+    name: macOS build and gate
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tcl/Tk 8.6
+        run: brew install tcl-tk@8
+
+      - name: Build
+        run: ./tools/build.sh
+
+      - name: Gate suites
+        run: ./tools/test.sh
+
+      # Advisory: environment- and network-dependent suites. Reported for
+      # visibility, never allowed to fail the build. See
+      # specs/test-baseline.md for why each is classified this way.
+      - name: Advisory suites
+        continue-on-error: true
+        run: ./tools/test.sh all
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-and-test-logs
+          path: |
+            build/*.log
+            build/tkined-smoke.*
+          if-no-files-found: ignore
