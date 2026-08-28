@@ -13,8 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Tcl/Tk 8.6
-        run: brew install tcl-tk@8
+      # autoconf/autoheader are required because configure is generated,
+      # not committed. The macOS runners do not ship them.
+      - name: Install build dependencies
+        run: brew install tcl-tk@8 autoconf
 
       - name: Build
         run: ./tools/build.sh
