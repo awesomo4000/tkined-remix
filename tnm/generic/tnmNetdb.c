@@ -428,6 +428,7 @@ NetdbIp(Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 
     case cmdRange: {
 	unsigned long net, mask;
+	unsigned int first, last, host;
 	struct in_addr ipaddr;
 	Tcl_Obj *listPtr;
 	if (objc != 5) {
@@ -440,13 +441,19 @@ NetdbIp(Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 	if (GetIpMask(interp, objv[4], &mask) != TCL_OK) {
 	    return TCL_ERROR;
 	}
+	/*
+	 * Compute the range in 32 bit arithmetic. net and mask are
+	 * unsigned long, which is 64 bit on LP64, so ~mask there also sets
+	 * the upper 32 bits: the loop bound became astronomically large
+	 * while s_addr wrapped at 2^32, and the loop never terminated.
+	 */
+	first = (unsigned int) net + 1;
+	last  = (unsigned int) net + (unsigned int) ~ (unsigned int) mask;
 	listPtr = Tcl_GetObjResult(interp);
-	for (ipaddr.s_addr = net + 1;
-	     ipaddr.s_addr < net + ~mask; ipaddr.s_addr++) {
-	    ipaddr.s_addr = htonl(ipaddr.s_addr);
+	for (host = first; host < last; host++) {
+	    ipaddr.s_addr = htonl(host);
 	    Tcl_ListObjAppendElement(interp, listPtr, 
 				     Tcl_NewStringObj(inet_ntoa(ipaddr), -1));
-	    ipaddr.s_addr = ntohl(ipaddr.s_addr);
 	}
 	break;
     }
