@@ -195,3 +195,28 @@ asynchronously with a bounded timeout and raises an error the same way
 connection too, which a naive version would report as success.
 
 Measured after: open 0.00s, refused 0.00s, filtered 2.00s.
+
+
+## Fixed: IP-Trouble "TCP Services" was an unbounded port scan
+
+The same report, but a different code path from the one above, and much
+worse. `IP-Trouble -> TCP Services` calls `TnmInet::TcpServices`, which
+lives in the Tnm library rather than the apps, so the earlier `TkiConnect`
+fix did not touch it.
+
+It walked **every tcp entry in the services database** -- 4935 of them,
+4925 distinct ports -- doing a blocking connect to each, one at a time.
+At the measured 75 seconds per filtered port that is **102 hours** for a
+single host.
+
+Rewritten to probe in concurrent batches with a bounded timeout. A socket
+becomes writable when its connect settles, so anything that never became
+writable was filtered; of those that did, an empty `fconfigure -error`
+distinguishes an established connection from a refused one.
+
+Measured after: localhost 0.2s, a fully filtered host 41.7s. Batch size
+and timeout are optional arguments.
+
+Note that this is still a ~5000 port scan of the target. That is what the
+tool has always done, but it is worth being deliberate about where it is
+pointed.

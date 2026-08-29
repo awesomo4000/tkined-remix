@@ -175,20 +175,87 @@ proc TnmInet::TraceRoute {{host localhost} {maxlength 32} {retries 3}} {
 #	A human readable list of services the allow to establish a
 #	TCP connection.
 
-proc TnmInet::TcpServices {{host localhost}} {
-    set txt ""
-    set services "X11 6000"
+# TnmInet::ScanReady --
+#
+#	Callback for TcpServices: an asynchronous socket became writable,
+#	which means its connect finished, successfully or not.
+
+proc TnmInet::ScanReady {sock} {
+    variable scanReady
+    variable scanPending
+    if {![info exists scanReady($sock)]} {
+	set scanReady($sock) 1
+	incr scanPending -1
+    }
+}
+
+proc TnmInet::TcpServices {{host localhost} {timeout 2000} {window 256}} {
+    variable scanReady
+    variable scanPending
+
+    #
+    # The services database lists close to 5000 tcp entries. Probing them
+    # one at a time with a blocking [socket] is why this used to look like
+    # a hang: Tcl's blocking connect has no timeout of its own, so every
+    # port on a host that drops the SYN costs the system default, measured
+    # at 75 seconds on macOS. That is over four days for a single host.
+    #
+    # Probe in concurrent batches with a bounded timeout instead. A socket
+    # becomes writable when its connect settles, so anything that never
+    # became writable was filtered, and of those that did, an empty
+    # fconfigure -error means the connection was actually established
+    # rather than refused.
+    #
+
+    array set svc {}
+    set svc(6000) X11
     foreach {name port protocol} [join [Tnm::netdb services]] {
 	if {[string compare $protocol tcp] == 0} {
-	    lappend services $name $port
+	    if {![info exists svc($port)]} {
+		set svc($port) $name
+	    }
 	}
     }
-    foreach {name port} $services {
-	if {[catch {socket $host $port} s]} {
-	    continue
+    set ports [lsort -integer [array names svc]]
+
+    set txt ""
+    for {set i 0} {$i < [llength $ports]} {incr i $window} {
+	set batch [lrange $ports $i [expr {$i + $window - 1}]]
+	set socks {}
+	catch {unset scanReady}
+	array set scanReady {}
+	set scanPending 0
+
+	foreach port $batch {
+	    if {[catch {socket -async $host $port} sock]} {
+		continue
+	    }
+	    lappend socks $port $sock
+	    incr scanPending
+	    fileevent $sock writable [list [namespace current]::ScanReady $sock]
 	}
-	close $s
-	append txt [format "  %-12s %6s/tcp\n" $name $port]
+
+	if {$scanPending > 0} {
+	    set afterId [after $timeout [list set [namespace current]::scanPending 0]]
+	    while {$scanPending > 0} {
+		vwait [namespace current]::scanPending
+	    }
+	    after cancel $afterId
+	}
+
+	foreach {port sock} $socks {
+	    fileevent $sock writable {}
+	    set isopen 0
+	    if {[info exists scanReady($sock)]} {
+		if {![catch {fconfigure $sock -error} err] && $err eq ""} {
+		    set isopen 1
+		}
+	    }
+	    catch {close $sock}
+	    if {$isopen} {
+		append txt [format "  %-12s %6s/tcp\n" $svc($port) $port]
+	    }
+	}
     }
     string trim $txt \n
 }
