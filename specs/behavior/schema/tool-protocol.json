@@ -1,0 +1,1029 @@
+{
+  "title": "tkined tool protocol",
+  "x-generated-from": [
+    "tnm/doc/ined.n",
+    "tkined/generic/tkiObjects.c"
+  ],
+  "transport": {
+    "framing": "line-oriented, newline terminated",
+    "quoting": "brace-wrapped arguments, embedded newlines escaped",
+    "channels": [
+      "stdio",
+      "tcp-loopback"
+    ],
+    "flowControl": "tool reports pending queue depth to the core",
+    "authentication": "none - must be confined to loopback or an authenticated tunnel"
+  },
+  "commandCount": 62,
+  "commands": [
+    {
+      "verb": "acknowledge",
+      "signature": "ined acknowledge line [line ...]",
+      "arguments": [
+        "line",
+        "[line",
+        "...]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "address",
+      "signature": "ined address id [string]",
+      "arguments": [
+        "id",
+        "[string]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "append",
+      "signature": "ined append id text",
+      "arguments": [
+        "id",
+        "text"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "attribute",
+      "signature": "ined attribute id attribute [string]",
+      "arguments": [
+        "id",
+        "attribute",
+        "[string]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "browse",
+      "signature": "ined browse title text",
+      "arguments": [
+        "title",
+        "text"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "clear",
+      "signature": "ined clear id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "collapse",
+      "signature": "ined collapse id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "collapsed",
+      "signature": "ined collapsed id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "color",
+      "signature": "ined color id [colorname]",
+      "arguments": [
+        "id",
+        "[colorname]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "confirm",
+      "signature": "ined confirm line [line ...] buttonlist",
+      "arguments": [
+        "line",
+        "[line",
+        "...]",
+        "buttonlist"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "create",
+      "signature": "ined create BARCHART",
+      "arguments": [
+        "BARCHART"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create GRAPH",
+      "arguments": [
+        "GRAPH"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create GROUP [ida idb ...]",
+      "arguments": [
+        "GROUP",
+        "[ida",
+        "idb",
+        "...]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "create",
+      "signature": "ined create IMAGE filename",
+      "arguments": [
+        "IMAGE",
+        "filename"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create INTERPRETER name",
+      "arguments": [
+        "INTERPRETER",
+        "name"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create LINK id1 id2 [x1 y1 ...]",
+      "arguments": [
+        "LINK",
+        "id1",
+        "id2",
+        "[x1",
+        "y1",
+        "...]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "create",
+      "signature": "ined create LOG",
+      "arguments": [
+        "LOG"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create MENU name command1 [command2 ...]",
+      "arguments": [
+        "MENU",
+        "name",
+        "command1",
+        "[command2",
+        "...]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "create",
+      "signature": "ined create NETWORK [x1 y1 x2 y2 ...]",
+      "arguments": [
+        "NETWORK",
+        "[x1",
+        "y1",
+        "x2",
+        "y2",
+        "...]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "create",
+      "signature": "ined create NODE",
+      "arguments": [
+        "NODE"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create REFERENCE",
+      "arguments": [
+        "REFERENCE"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create STRIPCHART",
+      "arguments": [
+        "STRIPCHART"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "create",
+      "signature": "ined create TEXT string",
+      "arguments": [
+        "TEXT",
+        "string"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "delete",
+      "signature": "ined delete id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "dump",
+      "signature": "ined dump id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "expand",
+      "signature": "ined expand id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "flash",
+      "signature": "ined flash id seconds",
+      "arguments": [
+        "id",
+        "seconds"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "font",
+      "signature": "ined font id [fontname]",
+      "arguments": [
+        "id",
+        "[fontname]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "hyperlink",
+      "signature": "ined hyperlink id cmd text",
+      "arguments": [
+        "id",
+        "cmd",
+        "text"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "icon",
+      "signature": "ined icon id [name]",
+      "arguments": [
+        "id",
+        "[name]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "id",
+      "signature": "ined id id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "jump",
+      "signature": "ined jump id [number]",
+      "arguments": [
+        "id",
+        "[number]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "label",
+      "signature": "ined label id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "label",
+      "signature": "ined label id address",
+      "arguments": [
+        "id",
+        "address"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "label",
+      "signature": "ined label id attribute",
+      "arguments": [
+        "id",
+        "attribute"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "label",
+      "signature": "ined label id clear",
+      "arguments": [
+        "id",
+        "clear"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "label",
+      "signature": "ined label id name",
+      "arguments": [
+        "id",
+        "name"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "links",
+      "signature": "ined links id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "list",
+      "signature": "ined list title list buttonlist",
+      "arguments": [
+        "title",
+        "list",
+        "buttonlist"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "members",
+      "signature": "ined members id [list]",
+      "arguments": [
+        "id",
+        "[list]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "move",
+      "signature": "ined move id [x y]",
+      "arguments": [
+        "id",
+        "[x",
+        "y]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "name",
+      "signature": "ined name id [string]",
+      "arguments": [
+        "id",
+        "[string]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "oid",
+      "signature": "ined oid id [number]",
+      "arguments": [
+        "id",
+        "[number]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "openfile",
+      "signature": "ined openfile title [file]",
+      "arguments": [
+        "title",
+        "[file]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "page",
+      "signature": "ined page [size [orientation]]",
+      "arguments": [
+        "[size",
+        "[orientation]]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "parent",
+      "signature": "ined parent id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "request",
+      "signature": "ined request title requestlist buttonlist",
+      "arguments": [
+        "title",
+        "requestlist",
+        "buttonlist"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "restart",
+      "signature": "ined restart [command]",
+      "arguments": [
+        "[command]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "retrieve",
+      "signature": "ined retrieve [id]",
+      "arguments": [
+        "[id]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "savefile",
+      "signature": "ined savefile title [file]",
+      "arguments": [
+        "title",
+        "[file]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "scale",
+      "signature": "ined scale id [value]",
+      "arguments": [
+        "id",
+        "[value]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "select",
+      "signature": "ined select",
+      "arguments": [],
+      "queryable": false
+    },
+    {
+      "verb": "select",
+      "signature": "ined select id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "selected",
+      "signature": "ined selected id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "send",
+      "signature": "ined send id cmd",
+      "arguments": [
+        "id",
+        "cmd"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "size",
+      "signature": "ined size",
+      "arguments": [],
+      "queryable": false
+    },
+    {
+      "verb": "size",
+      "signature": "ined size id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "text",
+      "signature": "ined text id [text]",
+      "arguments": [
+        "id",
+        "[text]"
+      ],
+      "queryable": true
+    },
+    {
+      "verb": "trace",
+      "signature": "ined trace callback",
+      "arguments": [
+        "callback"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "type",
+      "signature": "ined type id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "unselect",
+      "signature": "ined unselect id",
+      "arguments": [
+        "id"
+      ],
+      "queryable": false
+    },
+    {
+      "verb": "values",
+      "signature": "ined values id [number ...]",
+      "arguments": [
+        "id",
+        "[number",
+        "...]"
+      ],
+      "queryable": true
+    }
+  ],
+  "capabilitiesByOperation": {
+    "action": [
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "TEXT"
+    ],
+    "address": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "LOG",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART"
+    ],
+    "append": [
+      "LOG"
+    ],
+    "attribute": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "bell": [
+      "EVENT"
+    ],
+    "canvas": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "clear": [
+      "BARCHART",
+      "GRAPH",
+      "LOG",
+      "STRIPCHART"
+    ],
+    "collapse": [
+      "GROUP"
+    ],
+    "collapsed": [
+      "GROUP"
+    ],
+    "color": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "create": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "delete": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "dst": [
+      "LINK"
+    ],
+    "dump": [
+      "BARCHART",
+      "DATA",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "editor": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "expand": [
+      "GROUP"
+    ],
+    "flash": [
+      "BARCHART",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "font": [
+      "BARCHART",
+      "GROUP",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "hyperlink": [
+      "LOG"
+    ],
+    "icon": [
+      "GRAPH",
+      "GROUP",
+      "LOG",
+      "NETWORK",
+      "NODE",
+      "REFERENCE"
+    ],
+    "id": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "interpreter": [
+      "LOG",
+      "MENU"
+    ],
+    "items": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "jump": [
+      "STRIPCHART"
+    ],
+    "label": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART"
+    ],
+    "labelxy": [
+      "NETWORK"
+    ],
+    "links": [
+      "NETWORK",
+      "NODE"
+    ],
+    "lower": [
+      "BARCHART",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "member": [
+      "GROUP"
+    ],
+    "move": [
+      "BARCHART",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "name": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "oid": [
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "TEXT"
+    ],
+    "parent": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "points": [
+      "LINK",
+      "NETWORK"
+    ],
+    "postscript": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "raise": [
+      "BARCHART",
+      "GROUP",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "retrieve": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "scale": [
+      "BARCHART",
+      "GRAPH",
+      "STRIPCHART"
+    ],
+    "select": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "selected": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "send": [
+      "INTERPRETER"
+    ],
+    "size": [
+      "BARCHART",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "src": [
+      "LINK"
+    ],
+    "text": [
+      "TEXT"
+    ],
+    "type": [
+      "BARCHART",
+      "DATA",
+      "EVENT",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "INTERPRETER",
+      "LINK",
+      "LOG",
+      "MENU",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "ungroup": [
+      "GROUP"
+    ],
+    "unselect": [
+      "BARCHART",
+      "GRAPH",
+      "GROUP",
+      "IMAGE",
+      "LINK",
+      "NETWORK",
+      "NODE",
+      "REFERENCE",
+      "STRIPCHART",
+      "TEXT"
+    ],
+    "values": [
+      "BARCHART",
+      "DATA",
+      "GRAPH",
+      "STRIPCHART"
+    ]
+  },
+  "objectTypes": [
+    "NODE",
+    "GROUP",
+    "NETWORK",
+    "LINK",
+    "TEXT",
+    "IMAGE",
+    "REFERENCE",
+    "STRIPCHART",
+    "BARCHART",
+    "GRAPH",
+    "LOG",
+    "INTERPRETER",
+    "MENU",
+    "EVENT",
+    "DATA"
+  ]
+}
