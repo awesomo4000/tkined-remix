@@ -188,6 +188,12 @@ static int do_debug = 0;
 static int icsock = -1;				/* icmp */
 static int ipsock = -1;				/* ip/udp */
 
+/*
+ * Non-zero when the ICMP socket is an unprivileged SOCK_DGRAM socket
+ * rather than a SOCK_RAW one. See InitSockets() for what that implies.
+ */
+static int icmp_dgram = 0;
+
 #ifdef USE_DLPI
 /* port # our udp-socket is bound to: */
 static unsigned short src_port = 0;
@@ -1117,6 +1123,22 @@ SendIcmp(jobElem *job)
 	return;
     }
     
+    /*
+     * An unprivileged datagram ICMP socket only carries echo requests.
+     * Address mask and timestamp requests need a raw socket, so say so
+     * plainly instead of letting sendto fail with a generic error.
+     */
+
+    if (icmp_dgram && (job->type == ICMP_TYPE_MASK
+		       || job->type == ICMP_TYPE_TSTAMP)) {
+	syslog(LOG_WARNING, "icmp %s needs a raw socket: run nmicmpd setuid "
+	       "root to enable it (echo works unprivileged)",
+	       job->type == ICMP_TYPE_MASK ? "mask" : "timestamp");
+	job->status = ICMP_STATUS_GENERROR;
+	job->done = 1;
+	return;
+    }
+
     icp->icmp_type = job->type == ICMP_TYPE_MASK ? ICMP_MASKREQ : 
 	(job->type == ICMP_TYPE_TSTAMP ? ICMP_TSTAMP : ICMP_ECHO);
     icp->icmp_code = 0;
@@ -1199,23 +1221,42 @@ InitSockets()
      * before trying to open the ICMP socket.
      */
 
-    if (geteuid ()) {
-	syslog(LOG_WARNING, 
-	       "running with euid %d - not with root permissions", geteuid());
-	syslog(LOG_WARNING, 
-	       "expect missing permissions getting the icmp socket");
-    }
-
     if ((proto = getprotobyname("icmp")) == NULL) {
 	/* PosixError("icmp protocol unknown"); */ 
 	/* fall through */
     } else {
 	icmp_proto = proto->p_proto;
     }
-    
+
+    /*
+     * A SOCK_RAW ICMP socket needs root. Where the system offers
+     * unprivileged datagram ICMP sockets, fall back to one instead of
+     * refusing to run: this is how ping(8) works on macOS without being
+     * setuid. Measured on Darwin: the kernel leaves icmp_id alone, the
+     * payload is echoed back untouched, and received packets still carry
+     * the IP header, so the send and receive paths need no changes.
+     *
+     * Linux ping sockets are NOT equivalent: there the kernel rewrites
+     * icmp_id, so FindJobById() would never match and the correlation
+     * would have to key off something else. Do not assume this fallback
+     * is correct there without testing it.
+     */
+
     if ((icsock = socket(AF_INET, SOCK_RAW, icmp_proto)) == -1) {
-	PosixError("can not get icmp socket");
-	return 0;
+	int rawerr = errno;
+	if ((icsock = socket(AF_INET, SOCK_DGRAM, icmp_proto)) == -1) {
+	    errno = rawerr;
+	    PosixError("can not get icmp socket");
+	    if (geteuid()) {
+		syslog(LOG_WARNING, "running with euid %d and this system "
+		       "offers no unprivileged ICMP socket either",
+		       (int) geteuid());
+	    }
+	    return 0;
+	}
+	icmp_dgram = 1;
+	dsyslog(LOG_DEBUG, "no raw ICMP socket (%s), using an unprivileged "
+		"datagram ICMP socket instead", strerror(rawerr));
     }
 
 #ifdef USE_DLPI
