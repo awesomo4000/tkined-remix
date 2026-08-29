@@ -26,13 +26,31 @@ package provide TkinedTool 1.6.0
 ## Some virtual events that make our life a bit more easier - especially
 ## for mouse impaired people. :-)
 
-event add <<ScrollMark>> <Shift-2>
-event add <<ScrollDrag>> <Shift-B2-Motion>
-event add <<ScrollDone>> <Shift-ButtonRelease-2>
+## Aqua numbers the physical mouse buttons differently from X11: there
+## button 2 is the RIGHT button and button 3 is the middle one, which is
+## why Tk itself binds <<ContextMenu>> to <Button-3> on x11 and win32 but
+## to <Button-2> on aqua. These bindings were written for X11, so on macOS
+## the middle-button move landed on right-click and the right-button popup
+## landed on the middle button. Swap the two numbers on aqua so each
+## physical button keeps the role upstream intended.
 
-event add <<MoveMark>> <2> <Control-1>
-event add <<MoveDrag>> <B2-Motion> <Control-B1-Motion>
-event add <<MoveDone>> <ButtonRelease-2> <Control-ButtonRelease-1>
+if {[tk windowingsystem] eq "aqua"} {
+    event add <<ScrollMark>> <Shift-3>
+    event add <<ScrollDrag>> <Shift-B3-Motion>
+    event add <<ScrollDone>> <Shift-ButtonRelease-3>
+
+    event add <<MoveMark>> <3> <Control-1>
+    event add <<MoveDrag>> <B3-Motion> <Control-B1-Motion>
+    event add <<MoveDone>> <ButtonRelease-3> <Control-ButtonRelease-1>
+} else {
+    event add <<ScrollMark>> <Shift-2>
+    event add <<ScrollDrag>> <Shift-B2-Motion>
+    event add <<ScrollDone>> <Shift-ButtonRelease-2>
+
+    event add <<MoveMark>> <2> <Control-1>
+    event add <<MoveDrag>> <B2-Motion> <Control-B1-Motion>
+    event add <<MoveDone>> <ButtonRelease-2> <Control-ButtonRelease-1>
+}
 
 ##
 ## Find the topmost item at position x and y that is of one of 
@@ -286,14 +304,11 @@ proc Tool__Select { editor } {
     set c [$editor toplevel].canvas
     
     bind $c <1> \
-	"$editor selection clear; \
-         Tool__SelectMark $editor \
-         \[%W canvasx %x\] \[%W canvasy %y\]"
+        "Tool__Press $editor \[%W canvasx %x\] \[%W canvasy %y\]"
     bind $c <B1-Motion> \
-        "Tool__SelectDrag $editor \
-            \[%W canvasx %x\] \[%W canvasy %y\]"
+        "Tool__Drag $editor \[%W canvasx %x\] \[%W canvasy %y\]"
     bind $c <ButtonRelease-1> \
-        "Tool__SelectDone $editor"
+        "Tool__Release $editor \[%W canvasx %x\] \[%W canvasy %y\]"
     bind $c <Shift-Button-1> \
 	"Tool__SelectMark $editor \
 	    \[%W canvasx %x\] \[%W canvasy %y\]"
@@ -302,6 +317,54 @@ proc Tool__Select { editor } {
             \[%W canvasx %x\] \[%W canvasy %y\]"
     bind $c <Shift-ButtonRelease-1> \
         "Tool__SelectDone $editor"
+}
+
+##
+## Decide what the left button should do. Pressing on an object drags it,
+## which is what people expect; pressing empty canvas starts a rubber band
+## selection, which is the original behaviour. Without this the left button
+## only ever rubber-banded and objects could not be moved at all except via
+## Control-drag or the middle button.
+##
+
+proc Tool__OnObject { editor x y } {
+    set c [$editor toplevel].canvas
+    foreach item [$c find overlapping \
+                      [expr {$x-5}] [expr {$y-5}] [expr {$x+5}] [expr {$y+5}]] {
+        if {[lsearch [$c gettags $item] IMAGE] >= 0} continue
+        if {[Tool__GetId $c $item] ne ""} { return 1 }
+    }
+    return 0
+}
+
+proc Tool__Press { editor x y } {
+    global tkined_dragmode
+    if {[Tool__OnObject $editor $x $y]} {
+        set tkined_dragmode move
+        Tool__MoveMark $editor $x $y
+    } else {
+        set tkined_dragmode select
+        $editor selection clear
+        Tool__SelectMark $editor $x $y
+    }
+}
+
+proc Tool__Drag { editor x y } {
+    global tkined_dragmode
+    if {[info exists tkined_dragmode] && $tkined_dragmode eq "move"} {
+        Tool__MoveDrag $editor $x $y
+    } else {
+        Tool__SelectDrag $editor $x $y
+    }
+}
+
+proc Tool__Release { editor x y } {
+    global tkined_dragmode
+    if {[info exists tkined_dragmode] && $tkined_dragmode eq "move"} {
+        Tool__MoveDone $editor $x $y
+    } else {
+        Tool__SelectDone $editor
+    }
 }
 
 proc Tool__SelectApply { editor x y } {
