@@ -107,3 +107,20 @@ The codebase already uses **`tcltest` 2** with 13 suites under
 `tnm/tests/`. Tkined has none. Spec 01 builds on that rather than
 introducing a new framework. Network-dependent tests are the main
 difficulty and are handled there.
+
+
+## Behavioural extraction (added 2026-08-29)
+
+A parallel track to the port. `specs/behavior/` records **what tkined
+does** independently of Tcl, Tk and X11, so the valuable parts can be
+reimplemented elsewhere -- a browser user interface over a native layer,
+for example -- without carrying the graphics baggage.
+
+This is deliberately separate from the roadmap above. The port keeps the
+existing system working and improving; the extraction captures the design
+so it outlives the implementation. Neither blocks the other.
+
+The load-bearing observation is that tkined already splits the user
+interface from the logic across a 62-command line protocol, and tools are
+separate processes that need no graphics toolkit. That boundary is the
+seam a reimplementation should keep.

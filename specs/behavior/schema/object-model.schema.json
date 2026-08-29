@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "tkined object model",
+  "description": "Portable object model extracted from tkined. Presentation and transport fields are deliberately absent; see specs/behavior/01-object-model.md.",
+  "x-generated-from": [
+    "tkined/generic/tkiObjects.c",
+    "tkined/generic/tkined.h"
+  ],
+  "x-excluded-implementation-fields": [
+    "canvas",
+    "items",
+    "editor"
+  ],
+  "type": "object",
+  "required": [
+    "id",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Opaque, unique within a map."
+    },
+    "type": {
+      "enum": [
+        "NODE",
+        "GROUP",
+        "NETWORK",
+        "LINK",
+        "TEXT",
+        "IMAGE",
+        "REFERENCE",
+        "STRIPCHART",
+        "BARCHART",
+        "GRAPH",
+        "LOG",
+        "INTERPRETER",
+        "MENU",
+        "EVENT",
+        "DATA"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "oid": {
+      "type": "integer",
+      "description": "Externally assigned key."
+    },
+    "x": {
+      "type": "number"
+    },
+    "y": {
+      "type": "number"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Named icon, resolved at draw time."
+    },
+    "color": {
+      "type": "string"
+    },
+    "font": {
+      "type": "string"
+    },
+    "label": {
+      "description": "Selector naming which field to display, not the text.",
+      "oneOf": [
+        {
+          "enum": [
+            "name",
+            "address",
+            "clear"
+          ]
+        },
+        {
+          "type": "string",
+          "description": "an attribute name"
+        }
+      ]
+    },
+    "text": {
+      "type": "string",
+      "description": "TEXT objects only."
+    },
+    "parent": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Enclosing GROUP id."
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "src": {
+      "type": "string",
+      "description": "LINK source id."
+    },
+    "dst": {
+      "type": "string",
+      "description": "LINK destination id."
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Flat x,y vertex list."
+    },
+    "size": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "scale": {
+      "type": "number"
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "selected": {
+      "type": "boolean"
+    },
+    "collapsed": {
+      "type": "boolean"
+    },
+    "loaded": {
+      "type": "boolean"
+    },
+    "incomplete": {
+      "type": "boolean"
+    },
+    "timeout": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}
