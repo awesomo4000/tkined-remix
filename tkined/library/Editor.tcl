@@ -568,7 +568,10 @@ proc Editor__toplevel { editor } {
 
     # bind the popup menu (alter tool) on the right mouse button
 
-    bind $w.canvas <3> "Tool__AlterMark $editor \
+    # <<ContextMenu>> is <Button-3> on x11 and win32 but <Button-2> on aqua,
+    # so this follows the right mouse button on every platform. It used to
+    # be hardcoded to <3>, which is the middle button on macOS.
+    bind $w.canvas <<ContextMenu>> "Tool__AlterMark $editor \
 	    \[%W canvasx %x\] \[%W canvasy %y\] %X %Y"
     Editor__unlock $editor
 

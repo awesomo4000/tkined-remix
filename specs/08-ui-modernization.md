@@ -106,3 +106,27 @@ Discovered while generating a map from live local network data with
 
 Items 2, 3 and 4 are icon-handling bugs and belong together in whichever
 chunk touches icon assets (7c in the table above).
+
+
+## Fixed: mouse bindings were X11-only (2026-08-29)
+
+Reported symptom: objects could not be dragged and right-click did nothing.
+
+Tk numbers the physical mouse buttons differently on Aqua. Tk's own
+`tk.tcl` binds `<<ContextMenu>>` to `<Button-3>` under x11 and win32 but to
+`<Button-2>` under aqua. tkined was written for X11 and hardcoded both:
+
+- `Editor.tcl` bound the object popup to `<3>`, which is the **middle**
+  button on macOS, so right-click did nothing. The upstream comment there
+  even says "on the right mouse button", so the intent was always right.
+- `Tool.tcl` bound `<<MoveMark>>`/`<<MoveDrag>>` to button 2, which is the
+  **right** button on macOS, so moving objects sat on right-drag.
+
+Fixes:
+
+1. The popup now binds to `<<ContextMenu>>`, correct on every platform.
+2. The scroll and move virtual events swap buttons 2 and 3 under aqua, so
+   each physical button keeps the role upstream intended.
+3. Left-drag now moves an object when the press lands on one, and still
+   rubber-band selects on empty canvas (`Tool__Press`/`Drag`/`Release`).
+   Previously the left button only ever rubber-banded.
