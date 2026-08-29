@@ -1398,7 +1398,7 @@ proc "Show TCP Server" {list} {
 		continue
 	    }
 
-	    if {![catch {socket $ip $port} f]} {
+	    if {![catch {TkiConnect $ip $port 3000} f]} {
 		close $f
 		write   [format "%-32s \[" $host ]
 		write   $ip "IpFlash $ip"
@@ -1502,7 +1502,7 @@ proc test_user_host {user host level} {
 
     ined_create $host $user
 
-    if {[catch {socket $host smtp} f]} {
+    if {[catch {TkiConnect $host smtp 5000} f]} {
 	space $level; writeln "-> unable to connect to $host"
 	return 0
     }

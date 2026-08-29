@@ -168,3 +168,30 @@ Each press records what was under the cursor, whether a move armed, and how
 many objects were selected. A failing drag will show either `armed=0` on a
 press that should have moved something, or `rubber band` with a real object
 in its `hits:` list.
+
+
+## Fixed: scanning tools froze for 75 seconds per host
+
+Reported as "TCP services seems to be hanging".
+
+It was not hung. Tcl's blocking `socket` has no timeout of its own, so a
+host that silently drops the SYN costs the operating system default before
+the connect gives up. Measured on macOS: **75.0 seconds** for a single
+address. The scan loops over selected hosts synchronously and blocks the
+app's event loop, so a few filtered addresses froze the whole application
+for minutes.
+
+Six call sites had the same flaw:
+
+- `ip_discover.tcl` -- Show TCP Server, and the SMTP probe
+- `ip_monitor.tcl` -- two finger probes
+- `ip_trouble.tcl` -- whois
+- `event.tcl` -- syslog
+
+All now use `TkiConnect` in `apps/library.tcl`, which connects
+asynchronously with a bounded timeout and raises an error the same way
+`socket` does, so the call sites keep their `catch` shape. It also checks
+`fconfigure -error`, because an async socket becomes writable on a refused
+connection too, which a naive version would report as success.
+
+Measured after: open 0.00s, refused 0.00s, filtered 2.00s.
