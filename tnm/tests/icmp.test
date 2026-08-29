@@ -23,8 +23,18 @@ catch {
     namespace import Tnm::icmp
 }
 
-testConstraint knownBugMacOSX \
-    [expr {!($::tcl_platform(os) eq "Darwin")}]
+# These used to be disabled on Darwin because nmicmpd could not get a raw
+# ICMP socket without root and failed outright. It now falls back to an
+# unprivileged datagram ICMP socket, and all of them pass, so the platform
+# exclusion is gone.
+testConstraint knownBugMacOSX 1
+
+# Address mask and timestamp requests are the two operations a datagram
+# ICMP socket cannot carry; they need a raw socket. Detect what this build
+# can actually do rather than guessing from the platform or the uid, since
+# nmicmpd may be setuid root.
+testConstraint rawIcmpSocket \
+    [expr {![catch {icmp -timeout 1 mask 127.0.0.1}]}]
 
 test icmp-1.1 {icmp echo} {
     expr {[lindex [icmp echo 127.0.0.1] 1] > 0}
@@ -51,10 +61,10 @@ test icmp-1.2 {icmp timeout} knownBugMacOSX {
     expr {[lindex [icmp -timeout 5 echo 127.0.0.1] 1] > 0}
 } {1}
 test icmp-1.2.1 {icmp timeout timing} {
-    expr {[lindex [time {icmp -timeout 2 echo 192.169.173.173}] 0] > 2000000}
+    expr {[lindex [time {icmp -timeout 2 echo 192.0.2.1}] 0] > 2000000}
 } {1}
 test icmp-1.2.2 {icmp timeout timing} {
-    expr {[lindex [time {icmp -timeout 2 echo 192.169.173.173}] 0] < 3000000}
+    expr {[lindex [time {icmp -timeout 2 echo 192.0.2.1}] 0] < 3000000}
 } {1}
 test icmp-1.3 {icmp retries} {
     expr {[lindex [icmp -retries 5 echo 127.0.0.1] 1] > 0}
@@ -78,11 +88,11 @@ test icmp-1.5 {icmp size} {
     expr {[lindex [icmp -size 800 echo 127.0.0.1] 1] > 0}
 } {1}
 
-test icmp-2.0 {icmp mask} {
+test icmp-2.0 {icmp mask} rawIcmpSocket {
     set mask [lindex [icmp mask 127.0.0.1] 1]
     expr [string match "*.0.0.0" $mask] || [string length $mask] == 0
 } {1}
-test icmp-2.1 {icmp timestamp} knownBugMacOSX {
+test icmp-2.1 {icmp timestamp} rawIcmpSocket {
     regexp "\[-0-9]\[0-9]*" [lindex [icmp timestamp 127.0.0.1] 1]
 } {1}
 test icmp-2.2 {icmp ttl} {

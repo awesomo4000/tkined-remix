@@ -1,4 +1,8 @@
-# 02 — ICMP without root
+# 02 — ICMP without root  [DONE]
+
+**Status:** complete. `Tnm::icmp echo`, `ttl` and `trace` all work as an
+unprivileged user. `mask` and `timestamp` still need a raw socket and now
+say so. The `icmp` suite went from 15 failures to 0.
 
 **Depends on:** 01 (needs a gate). **Independent of:** 03-05.
 
@@ -72,3 +76,36 @@ binary. Degrade honestly where the OS genuinely requires privilege.
 If kernel id-rewriting cannot be worked around cleanly, fall back to one
 socket per outstanding target, or keep setuid as an opt-in fast path.
 Decide with measurements, not guesses.
+
+
+## Outcome
+
+Delivered, and smaller than the spec feared. Three predictions were wrong,
+all checked by measurement rather than reasoning:
+
+1. **The kernel does not rewrite `icmp_id` on Darwin.** This was the
+   spec's high-risk item, chunk 2c, and the reason a multi-target test was
+   going to be the gate. Verified against loopback and off-loopback: the id
+   comes back untouched and the payload survives, so `FindJobById` needed
+   no change at all. Linux ping sockets *do* rewrite the id, so the code
+   carries a comment warning against assuming this fallback is portable.
+
+2. **Traceroute works unprivileged.** The spec expected to have to
+   feature-gate it. It returns real hops. An earlier reading that it was
+   broken came from tracing to the default gateway, which is one hop away,
+   so ttl=1 had nowhere to expire.
+
+3. **The eight `knownBugMacOSX` skips were not tkined bugs.** They were all
+   consequences of `nmicmpd` failing to get a raw socket. With the fallback
+   in place every one of them passes, and the platform exclusion is gone.
+
+What genuinely does need a raw socket: `mask` and `timestamp`. Those are
+gated by a self-detecting `rawIcmpSocket` constraint that tries the
+operation rather than guessing from platform or uid, since `nmicmpd` may
+be setuid.
+
+Also fixed: the misleading `inappropriate device for ioctl`, which was
+`Tcl_PosixError` reporting a stale errno after the helper had already
+exited, and a stale test that pinged `192.169.173.173` as an unreachable
+address. That host answers today; the tests now use `192.0.2.1`, which is
+RFC 5737 TEST-NET-1 and reserved.

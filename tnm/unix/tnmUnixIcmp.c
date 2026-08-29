@@ -227,8 +227,21 @@ TnmIcmp(Tcl_Interp *interp, TnmIcmpRequest *icmpPtr)
     for (j = 0; j < icmpPtr->numTargets; j++) {
 	rc = Tcl_Read(channel, (char *) &icmpMsg, ICMP_MSG_RESPONSE_SIZE);
 	if (rc != ICMP_MSG_RESPONSE_SIZE) {
-	    Tcl_AppendResult(interp, "nmicmpd: ", Tcl_PosixError(interp),
-			     (char *) NULL);
+	    /*
+	     * A short read means the helper died rather than answered.
+	     * Reporting Tcl_PosixError here picks up whatever errno
+	     * happened to be left over, which produced misleading messages
+	     * such as "inappropriate device for ioctl". Say what actually
+	     * happened and point at the log that has the reason.
+	     */
+	    if (rc >= 0) {
+		Tcl_AppendResult(interp, "nmicmpd: the ICMP helper exited "
+				 "without answering; see the system log for "
+				 "the reason", (char *) NULL);
+	    } else {
+		Tcl_AppendResult(interp, "nmicmpd: ", Tcl_PosixError(interp),
+				 (char *) NULL);
+	    }
 	    KillDaemon((ClientData) NULL);
 	    return TCL_ERROR;
 	}
@@ -242,8 +255,10 @@ TnmIcmp(Tcl_Interp *interp, TnmIcmpRequest *icmpPtr)
 #endif
 	if (icmpMsg.status == TNM_ICMP_STATUS_GENERROR) {
 	    Tcl_ResetResult(interp);
-	    Tcl_AppendResult(interp, "nmicmpd: failed to send ICMP message",
-			     (char *) NULL);
+	    Tcl_AppendResult(interp, "nmicmpd: failed to send ICMP message "
+			     "(icmp mask, timestamp and trace need a raw "
+			     "socket; run nmicmpd setuid root to enable them, "
+			     "echo works unprivileged)", (char *) NULL);
 	    code = TCL_ERROR;
 	    break;
 	}

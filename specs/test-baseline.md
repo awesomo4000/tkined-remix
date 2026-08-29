@@ -27,6 +27,7 @@ suggest. `netdb` in particular looked like a safe offline suite and was not.
 | `sunrpc` | 29 passed, 16 skipped, 0 failed | local RPC services |
 | `dns` | 15 passed, 11 skipped, 0 failed | needs a resolver |
 | `ntp` | 10 passed, 1 skipped, 0 failed | needs a reachable NTP server |
+| `icmp` | 41 passed, 2 skipped, 0 failed | 2 skips are `mask` and `timestamp`, which need a raw socket |
 
 Promote to gate once observed stable on CI runners.
 
@@ -34,7 +35,6 @@ Promote to gate once observed stable on CI runners.
 
 | Suite | Result | Tracked by |
 |---|---|---|
-| `icmp` | **15 failed** | spec 02 — `nmicmpd` needs `SOCK_RAW`, hence root |
 | `l.smx` | 19 passed, **27 failed** | SMX engine lifecycle; see below |
 
 ## Fixed while establishing this baseline

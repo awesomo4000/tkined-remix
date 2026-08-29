@@ -134,10 +134,9 @@ Also note: `make distclean` deletes the autoheader-generated `config.h.in`;
 
 ## Known limitations
 
-- ICMP requires `nmicmpd` to be setuid root, because it opens a `SOCK_RAW`
-  socket. This is not an OS limitation: macOS supports unprivileged ICMP via
-  `SOCK_DGRAM`/`IPPROTO_ICMP`, and the system `ping` is not setuid. Fixing
-  this is planned work.
+- `icmp mask` and `icmp timestamp` need a raw socket, so they require
+  `nmicmpd` to be setuid root. Echo, ttl and traceroute all work
+  unprivileged. The error message says so if you hit it.
 - Upstream documents macOS bugs in `dns -server`, `icmp` to unreachable
   hosts, and `mib format BinaryValue` on 64-bit.
 - macOS Aqua `wish` discards stdout; use stderr or a file when debugging.

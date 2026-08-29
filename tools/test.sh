@@ -25,12 +25,11 @@ GATE_SUITES="job map syslog mib"
 
 # Suites that pass here but depend on the host environment or network.
 # Reported, never gating. Promote to GATE once observed stable in CI.
-ADVISORY_SUITES="netdb udp snmp sunrpc dns ntp"
+ADVISORY_SUITES="netdb udp snmp sunrpc dns ntp icmp"
 
 # Suites known to fail for a reason already tracked by a spec.
-# icmp   -> spec 02 (needs SOCK_RAW / setuid root)
-# l.smx  -> hardcodes the binary name "scotty3.1.0"; also needs an engine
-QUARANTINED="icmp l.smx"
+# l.smx  -> engine lifecycle; see specs/test-baseline.md
+QUARANTINED="l.smx"
 
 if [ ! -x "$SCOTTY" ] || [ ! -d "$BUILD/lib" ]; then
     echo "test: no build found. Run ./tools/build.sh first." >&2
