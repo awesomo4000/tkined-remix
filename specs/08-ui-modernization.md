@@ -130,3 +130,41 @@ Fixes:
 3. Left-drag now moves an object when the press lands on one, and still
    rubber-band selects on empty canvas (`Tool__Press`/`Drag`/`Release`).
    Previously the left button only ever rubber-banded.
+
+
+## Open: objects sometimes refuse to drag
+
+Reported after the Aqua binding fix: clicking, dragging and the right-click
+menu all work, but objects cannot always be moved.
+
+**Not reproduced.** Tried with synthetic events, which exercise the real
+bindings without moving the pointer:
+
+- the same object dragged repeatedly
+- click offsets across the icon, the label, above, beside and off the object
+- a drag immediately after a rubber band selection, and after a bare click
+  on empty canvas
+- alternating between two objects
+- every node *and* network bar in a real generated map
+- dragging an object that is **not** part of an existing multi-object
+  selection, which was the strongest remaining theory
+
+All moved correctly. The only failure was a click on genuinely empty
+canvas, which correctly starts a rubber band instead.
+
+A suspect remains but is unconfirmed: `Tool__Press` decides "this is a
+move" with its own hit test, then `Tool__MoveMark` independently re-derives
+`tkined_valid` from the canvas `selected` tags and can decline to arm. If
+the two ever disagree the press is treated as a move that then does
+nothing. Making `Tool__Press` defer to whether `MoveMark` actually armed
+would remove the disagreement, but that change should wait until there is a
+reproduction to verify it against.
+
+To capture one, run with the mouse trace enabled:
+
+    TKINED_MOUSE_LOG=/tmp/mouse.log ./bin/tkined build/local-network.tki
+
+Each press records what was under the cursor, whether a move armed, and how
+many objects were selected. A failing drag will show either `armed=0` on a
+press that should have moved something, or `rubber band` with a real object
+in its `hits:` list.
