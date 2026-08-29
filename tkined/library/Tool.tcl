@@ -327,6 +327,39 @@ proc Tool__Select { editor } {
 ## Control-drag or the middle button.
 ##
 
+##
+## Optional mouse tracing. Set TKINED_MOUSE_LOG to a file path and every
+## left-button press records what was under the cursor and whether a move
+## or a rubber band selection was started. Intended for pinning down
+## reports of objects that only sometimes drag; it costs nothing when the
+## variable is unset.
+##
+
+proc Tool__MouseLog { msg } {
+    global env
+    if {![info exists env(TKINED_MOUSE_LOG)]} return
+    catch {
+        set f [open $env(TKINED_MOUSE_LOG) a]
+        puts $f $msg
+        close $f
+    }
+}
+
+proc Tool__DescribeHit { editor x y } {
+    set c [$editor toplevel].canvas
+    set out ""
+    foreach item [$c find overlapping \
+                      [expr {$x-5}] [expr {$y-5}] [expr {$x+5}] [expr {$y+5}]] {
+        set id [Tool__GetId $c $item]
+        set sel "?"
+        if {$id ne ""} { catch {$id selected} sel }
+        append out " item=$item/[$c type $item]"
+        if {$id ne ""} { append out "/id=$id/sel=$sel" }
+    }
+    if {$out eq ""} { set out " (nothing)" }
+    return $out
+}
+
 proc Tool__OnObject { editor x y } {
     set c [$editor toplevel].canvas
     foreach item [$c find overlapping \
@@ -338,14 +371,18 @@ proc Tool__OnObject { editor x y } {
 }
 
 proc Tool__Press { editor x y } {
-    global tkined_dragmode
+    global tkined_dragmode tkined_valid
     if {[Tool__OnObject $editor $x $y]} {
         set tkined_dragmode move
         Tool__MoveMark $editor $x $y
+        Tool__MouseLog "press ($x,$y) -> move armed=[expr {[info exists tkined_valid] ? $tkined_valid : {?}}]\
+ selection=[llength [$editor selection]] hits:[Tool__DescribeHit $editor $x $y]"
     } else {
         set tkined_dragmode select
         $editor selection clear
         Tool__SelectMark $editor $x $y
+        Tool__MouseLog "press ($x,$y) -> rubber band\
+ hits:[Tool__DescribeHit $editor $x $y]"
     }
 }
 
@@ -362,8 +399,11 @@ proc Tool__Release { editor x y } {
     global tkined_dragmode
     if {[info exists tkined_dragmode] && $tkined_dragmode eq "move"} {
         Tool__MoveDone $editor $x $y
+        Tool__MouseLog "release ($x,$y) -> move done"
     } else {
         Tool__SelectDone $editor
+        Tool__MouseLog "release ($x,$y) -> selection done,\
+ [llength [$editor selection]] selected"
     }
 }
 
