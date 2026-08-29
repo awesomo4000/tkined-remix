@@ -818,7 +818,7 @@ proc ActiveUserProc {ids} {
 
     foreach id $ids {
         set ip $users_ip($id)
-	if {[catch {socket $ip finger} f]} {
+	if {[catch {TkiConnect $ip finger 3000} f]} {
 	    continue
 	}
 	if {[catch {puts $f ""}]} {
@@ -866,7 +866,7 @@ proc "Active Users" { list } {
 	set id [lindex $id_ip 0]
 	set ip [lindex $id_ip 1]
 
-	if {[catch {socket $ip finger} f]} continue
+	if {[catch {TkiConnect $ip finger 3000} f]} continue
 	close $f
 
 	ined -noupdate attribute $id "active users" "no users"

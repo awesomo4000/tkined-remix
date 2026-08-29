@@ -432,7 +432,7 @@ proc WhoisInfo { server list } {
 
 	    if {! [info exists whois($ip:$server)]} {
 
-		if {[catch {socket $server whois} s]} {
+		if {[catch {TkiConnect $server whois 5000} s]} {
 		    writeln "Can not connect to whois server $server."
 		    continue
 		}

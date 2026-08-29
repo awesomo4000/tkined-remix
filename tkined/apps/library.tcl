@@ -26,6 +26,48 @@
 ## =========================================================================
 ##
 
+
+##
+## Connect to host:port with a bounded timeout, returning the socket.
+##
+## Tcl's blocking [socket] has no timeout of its own, so a host that
+## silently drops the SYN costs the operating system default before it
+## gives up -- 75 seconds on macOS. The scanning tools loop over hosts
+## synchronously, so a handful of filtered addresses froze the whole
+## application for minutes and looked like a hang.
+##
+## Raises an error on failure, exactly as [socket] does, so callers keep
+## their existing "catch" shape.
+##
+
+proc TkiConnect { host port {timeout 5000} } {
+    if {[catch {socket -async $host $port} sock]} {
+        return -code error $sock
+    }
+    set var ::__tkiconnect[incr ::__tkiconnect_seq]
+    set $var pending
+    fileevent $sock writable [list set $var ready]
+    set after_id [after $timeout [list set $var timeout]]
+    vwait $var
+    after cancel $after_id
+    set outcome [set $var]
+    unset -nocomplain $var
+    fileevent $sock writable {}
+
+    if {$outcome eq "timeout"} {
+        catch {close $sock}
+        return -code error "connection to $host:$port timed out"
+    }
+
+    # An asynchronous socket also becomes writable when the connection was
+    # refused, so ask the socket whether it actually came up.
+    if {![catch {fconfigure $sock -error} err] && $err ne ""} {
+        catch {close $sock}
+        return -code error $err
+    }
+    return $sock
+}
+
 ##
 ## Search for tkined.defaults files following the auto_path and read
 ## default definition. Each default definition has the following syntax:

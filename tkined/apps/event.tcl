@@ -411,7 +411,7 @@ proc ev_server { server port } {
 
     global syslog menus
 
-    if {[catch {socket $server $port} syslog]} {
+    if {[catch {TkiConnect $server $port 5000} syslog]} {
 	ined acknowledge \
 	    "Can not connect to $server using port $port" "" $syslog
 	return
