@@ -8,9 +8,15 @@ on:
 
 jobs:
   macos:
-    name: macOS build and gate
+    name: macOS ${{ matrix.tcltk }}
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # Both are supported while the Tcl 9 port settles. 8.6.18 is the
+        # default; 9.0.4 must stay green before 8.6 support is removed.
+        tcltk: ["8.6.18", "9.0.4"]
     steps:
       - uses: actions/checkout@v4
 
@@ -29,17 +35,17 @@ jobs:
         with:
           path: |
             vendor/cache
-            vendor/prefix
-          key: tcltk-${{ runner.os }}-${{ hashFiles('tools/vendor-tcltk.sh') }}
+            vendor/prefix-${{ matrix.tcltk }}
+          key: tcltk-${{ runner.os }}-${{ matrix.tcltk }}-${{ hashFiles('tools/vendor-tcltk.sh') }}
 
       - name: Build vendored Tcl/Tk
-        run: ./tools/vendor-tcltk.sh
+        run: TCLTK_VERSION=${{ matrix.tcltk }} ./tools/vendor-tcltk.sh
 
       - name: Build
-        run: ./tools/build.sh
+        run: TCLTK_VERSION=${{ matrix.tcltk }} ./tools/build.sh
 
       - name: Gate suites
-        run: ./tools/test.sh
+        run: TCLTK_VERSION=${{ matrix.tcltk }} ./tools/test.sh
 
       # Advisory: environment- and network-dependent suites. Reported for
       # visibility, never allowed to fail the build. See
@@ -51,13 +57,13 @@ jobs:
         timeout-minutes: 8
         env:
           TIMEOUT_SECS: 45
-        run: ./tools/test.sh advisory
+        run: TCLTK_VERSION=${{ matrix.tcltk }} ./tools/test.sh advisory
 
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-and-test-logs
+          name: build-and-test-logs-${{ matrix.tcltk }}
           path: |
             build/*.log
             build/tkined-smoke.*

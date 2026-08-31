@@ -19,8 +19,26 @@ if [ -z "$ROOT" ]; then
     ROOT="$(cd "$_here/.." 2>/dev/null && pwd)"
 fi
 
+# TCLTK_VERSION selects which vendored build to use. It defaults to 8.6.18
+# so the supported configuration stays the default; set it to 9.0.4 to
+# build against Tcl/Tk 9.
+_want="${TCLTK_VERSION:-8.6.18}"
+
+# If a version was asked for explicitly, it is an error not to have it.
+# Falling through to whatever else is lying around would silently build
+# against a different Tcl than the one requested, which is worse than
+# stopping.
+if [ -n "$TCLTK_VERSION" ] && [ -z "$TCLTK_PREFIX" ]; then
+    if [ ! -f "$ROOT/vendor/prefix-$TCLTK_VERSION/lib/tclConfig.sh" ]; then
+        echo "tcl-env: Tcl/Tk $TCLTK_VERSION is not built." >&2
+        echo "  build it:  TCLTK_VERSION=$TCLTK_VERSION ./tools/vendor-tcltk.sh" >&2
+        return 1 2>/dev/null || exit 1
+    fi
+fi
+
 if [ -z "$TCLTK_PREFIX" ]; then
     for _c in \
+        "$ROOT/vendor/prefix-$_want" \
         "$ROOT/vendor/prefix" \
         "$(command -v brew >/dev/null 2>&1 && brew --prefix tcl-tk@8 2>/dev/null)" \
         /opt/homebrew/opt/tcl-tk@8 \

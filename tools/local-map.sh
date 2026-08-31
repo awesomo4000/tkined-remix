@@ -10,7 +10,8 @@ TNM_LIBRARY="$(echo "$BUILD"/lib/Tnm*)";       export TNM_LIBRARY
 TKINED_LIBRARY="$(echo "$BUILD"/lib/Tkined*)"; export TKINED_LIBRARY
 TCLLIBPATH="$BUILD/lib";                       export TCLLIBPATH
 
-MAP_OUT="${1:-$BUILD/local-network.tki}";      export MAP_OUT
+MAP_OUT="${1:-$ROOT/maps/local-network.tki}";   export MAP_OUT
+mkdir -p "$(dirname "$MAP_OUT")"
 MAP_PS="$BUILD/local-network.ps";              export MAP_PS
 MAP_LOG="$BUILD/local-map.log";                export MAP_LOG
 

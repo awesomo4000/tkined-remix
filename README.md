@@ -20,6 +20,16 @@ verifies them against checksums taken from an independent source, and
 builds them into `vendor/prefix`. Nothing outside the repository is used,
 and the first build takes a few minutes longer while Tcl and Tk compile.
 
+Two versions are supported while the Tcl 9 port settles:
+
+    ./tools/build.sh                        # Tcl/Tk 8.6.18, the default
+    TCLTK_VERSION=9.0.4 ./tools/build.sh    # Tcl/Tk 9.0.4
+
+Each is vendored into its own `vendor/prefix-<version>`, so both can be
+built and tested side by side. CI gates on both. Asking for a version that
+has not been built is an error rather than a silent fall back to another
+one.
+
 To build against a system Tcl/Tk instead, set `TCLTK_PREFIX` to a prefix
 containing `tclConfig.sh` and `tkConfig.sh`; the vendoring is then skipped.
 Set `TCLTK_TARBALL_DIR` to build with no network access.

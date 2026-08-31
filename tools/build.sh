@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # idempotent and returns immediately once the prefix exists, so this costs
 # nothing on a warm tree. Set TCLTK_PREFIX to build against a system copy
 # instead and this is skipped.
-if [ -z "$TCLTK_PREFIX" ] && [ ! -d "$ROOT/vendor/prefix" ]; then
+if [ -z "$TCLTK_PREFIX" ] && [ ! -d "$ROOT/vendor/prefix-${TCLTK_VERSION:-8.6.18}" ]; then
     "$ROOT/tools/vendor-tcltk.sh"
 fi
 
