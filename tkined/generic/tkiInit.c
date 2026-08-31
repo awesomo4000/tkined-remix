@@ -75,10 +75,10 @@ TkiInit(Tcl_Interp *interp)
     const char *library, *tmp;
 
 #ifdef USE_TCL_STUBS
-    if (Tcl_InitStubs(interp, "8.4", 0) == NULL) {
+    if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL) {
 		return TCL_ERROR;
     }
-    if (Tk_InitStubs(interp, "8.4", 0) == NULL) {
+    if (Tk_InitStubs(interp, TK_VERSION, 0) == NULL) {
 		return TCL_ERROR;
     }
 #endif

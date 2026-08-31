@@ -24,6 +24,7 @@
 #endif
 
 #include <tk.h>
+#include <stddef.h>	/* offsetof */
 #include "tkined.h"
 
 /*
@@ -135,31 +136,31 @@ static Tk_CustomOption valueOption = {
 
 static Tk_ConfigSpec configSpecs[] = {  
     {TK_CONFIG_BOOLEAN, "-autocolor", (char *) NULL, (char *) NULL,
-        "0", Tk_Offset(BarchartItem, autocolor), TK_CONFIG_DONT_SET_DEFAULT},
+        "0", offsetof(BarchartItem, autocolor), TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_COLOR, "-background", (char *) NULL, (char *) NULL,
-        (char *) NULL, Tk_Offset(BarchartItem, rectColor), TK_CONFIG_NULL_OK},
+        (char *) NULL, offsetof(BarchartItem, rectColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_COLOR, "-barline", (char *) NULL, (char *) NULL,
-        "black", Tk_Offset(BarchartItem, barlineColor), 
+        "black", offsetof(BarchartItem, barlineColor), 
         TK_CONFIG_NULL_OK},   
     {TK_CONFIG_COLOR, "-fill", (char *) NULL, (char *) NULL,
-        (char *) NULL, Tk_Offset(BarchartItem, color), TK_CONFIG_NULL_OK},
+        (char *) NULL, offsetof(BarchartItem, color), TK_CONFIG_NULL_OK},
     {TK_CONFIG_COLOR, "-outline", (char *) NULL, (char *) NULL,
-        "black", Tk_Offset(BarchartItem, outlineColor), 
+        "black", offsetof(BarchartItem, outlineColor), 
         TK_CONFIG_NULL_OK},   
     {TK_CONFIG_COLOR, "-scaleline", (char *) NULL, (char *) NULL,
-        "black", Tk_Offset(BarchartItem, scalelineColor), TK_CONFIG_NULL_OK},
+        "black", offsetof(BarchartItem, scalelineColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_INT, "-scalelinestyle", (char *) NULL, (char *) NULL,
-        "4", Tk_Offset(BarchartItem, scalelineStyle),
+        "4", offsetof(BarchartItem, scalelineStyle),
         TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_DOUBLE, "-scalevalue", (char *) NULL, (char *) NULL,
-        "100.0", Tk_Offset(BarchartItem, scaleValue),
+        "100.0", offsetof(BarchartItem, scaleValue),
         TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_CUSTOM, "-tags", (char *) NULL, (char *) NULL,
         (char *) NULL, 0, TK_CONFIG_NULL_OK, &tagsOption},
     {TK_CONFIG_CUSTOM, "-values", (char *) NULL, (char *) NULL,
         (char *) NULL, 0, TK_CONFIG_DONT_SET_DEFAULT, &valueOption},
     {TK_CONFIG_BOOLEAN, "-selected", (char *) NULL, (char *) NULL,
-	"0", Tk_Offset(BarchartItem, selected), TK_CONFIG_NULL_OK},
+	"0", offsetof(BarchartItem, selected), TK_CONFIG_NULL_OK},
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
         (char *) NULL, 0, 0}
 };

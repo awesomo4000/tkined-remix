@@ -150,6 +150,20 @@ The hit-testing helper next to it already does this correctly, walking the
 z-order from the closest item outward. The click handler should use it
 instead of its own loop.
 
+### B10 — ASN1_COUNTER64 falls through to the IP address case
+
+**Severity:** medium. Wrong conversion for 64-bit counters.
+**Where:** `tnm/snmp/tnmMibUtil.c`, `TnmMibGetValue`.
+**Found:** while porting to Tcl 9.
+
+The `ASN1_COUNTER64` case converts to the unsigned-64 type and then has
+no `break`, so control falls into `ASN1_IPADDRESS` and immediately
+overwrites the result with an IP address conversion. Every other case in
+the switch breaks, so this reads as an omission rather than intent.
+
+Left alone deliberately: it is unrelated to the Tcl 9 port and fixing it
+in the same change would make a behavioural change hard to attribute.
+
 ---
 
 ## Not our bug

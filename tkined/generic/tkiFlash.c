@@ -127,7 +127,7 @@ FlashProc (ClientData clientData)
     Tcl_Eval (interp, "update");
 
     if (max > 0) {
-	Tk_CreateTimerHandler (500, FlashProc, (ClientData) interp);
+	Tcl_CreateTimerHandler (500, FlashProc, (ClientData) interp);
     }
 }
 
@@ -147,7 +147,7 @@ TkiFlash (Tcl_Interp *interp, Tki_Object *object)
 	p = flashList;
 	p->id = ckstrdup(object->id);
 	p->nextPtr = NULL;
-	Tk_CreateTimerHandler (500, FlashProc, (ClientData) interp);
+	Tcl_CreateTimerHandler (500, FlashProc, (ClientData) interp);
 
     } else {
 

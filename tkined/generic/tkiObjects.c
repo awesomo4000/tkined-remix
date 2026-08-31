@@ -181,7 +181,7 @@ TkiTrace (Tki_Editor *editor, Tki_Object *object, char *cmd, int argc, const cha
 	 * Handle all pending events.
 	 */
 	
-	while (Tk_DoOneEvent(TK_DONT_WAIT) != 0) {
+	while (Tcl_DoOneEvent(TCL_DONT_WAIT) != 0) {
 	  /* Empty loop body */
 	}
 #endif

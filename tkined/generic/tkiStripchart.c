@@ -24,6 +24,7 @@
 #endif
 
 #include <tk.h>
+#include <stddef.h>	/* offsetof */
 #include "tkined.h"
 
 /* #define HAVE_LABEL */
@@ -151,39 +152,39 @@ static Tk_CustomOption valueOption = {
 
 static Tk_ConfigSpec configSpecs[] = {
     {TK_CONFIG_COLOR, "-background", (char *) NULL, (char *) NULL,
-        (char *) NULL, Tk_Offset(StripchartItem, rectColor), 
+        (char *) NULL, offsetof(StripchartItem, rectColor), 
 	TK_CONFIG_NULL_OK},
     {TK_CONFIG_COLOR, "-fill", (char *) NULL, (char *) NULL,
-	 "black", Tk_Offset(StripchartItem, stripColor), TK_CONFIG_NULL_OK},
+	 "black", offsetof(StripchartItem, stripColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_INT, "-jumpscroll", (char *) NULL, (char *) NULL,
-	"5", Tk_Offset(StripchartItem, jump), TK_CONFIG_DONT_SET_DEFAULT},
+	"5", offsetof(StripchartItem, jump), TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_COLOR, "-outline", "outlineColor", (char *) NULL,
-        "black", Tk_Offset(StripchartItem, outlineColor), TK_CONFIG_NULL_OK},
+        "black", offsetof(StripchartItem, outlineColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_COLOR, "-scaleline", (char *) NULL, (char *) NULL,
-        "black", Tk_Offset(StripchartItem, scalelineColor), TK_CONFIG_NULL_OK},
+        "black", offsetof(StripchartItem, scalelineColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_INT, "-scalelinestyle", (char *) NULL, (char *) NULL,
-	"4", Tk_Offset(StripchartItem, scalelineStyle),
+	"4", offsetof(StripchartItem, scalelineStyle),
         TK_CONFIG_DONT_SET_DEFAULT},
     {TK_CONFIG_DOUBLE, "-scalevalue", (char *) NULL, (char *) NULL,
-	"100.0", Tk_Offset(StripchartItem, scaleValue), 
+	"100.0", offsetof(StripchartItem, scaleValue), 
 	TK_CONFIG_DONT_SET_DEFAULT},  
     {TK_CONFIG_COLOR, "-stripline", (char *) NULL, (char *) NULL,
-        "", Tk_Offset(StripchartItem, striplineColor), TK_CONFIG_NULL_OK},
+        "", offsetof(StripchartItem, striplineColor), TK_CONFIG_NULL_OK},
     {TK_CONFIG_CUSTOM, "-tags", (char *) NULL, (char *) NULL,
         (char *) NULL, 0, TK_CONFIG_NULL_OK, &tagsOption},
     {TK_CONFIG_CUSTOM, "-values", (char *) NULL, (char *) NULL,
         (char *) NULL, 0, TK_CONFIG_DONT_SET_DEFAULT, &valueOption},
 #ifdef HAVE_LABEL
     {TK_CONFIG_STRING, "-text", (char *) NULL, (char *) NULL,
-        "", Tk_Offset(StripchartItem, text), TK_CONFIG_NULL_OK},
+        "", offsetof(StripchartItem, text), TK_CONFIG_NULL_OK},
     {TK_CONFIG_FONT, "-font", (char *) NULL, (char *) NULL,
         "-Adobe-Helvetica-Bold-R-Normal--*-120-*",
-        Tk_Offset(StripchartItem, fontPtr), TK_CONFIG_NULL_OK},
+        offsetof(StripchartItem, fontPtr), TK_CONFIG_NULL_OK},
     {TK_CONFIG_COLOR, "-textColor", (char *) NULL, (char *) NULL,
-        "black", Tk_Offset(StripchartItem, textColor), TK_CONFIG_NULL_OK},
+        "black", offsetof(StripchartItem, textColor), TK_CONFIG_NULL_OK},
 #endif
     {TK_CONFIG_BOOLEAN, "-selected", (char *) NULL, (char *) NULL,
-	"0", Tk_Offset(StripchartItem, selected), TK_CONFIG_NULL_OK},
+	"0", offsetof(StripchartItem, selected), TK_CONFIG_NULL_OK},
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
         (char *) NULL, 0, 0}
 };

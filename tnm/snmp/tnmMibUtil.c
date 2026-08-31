@@ -1463,6 +1463,19 @@ TnmMibPack(Tcl_Interp *interp, TnmOid *oidPtr, int objc, Tcl_Obj **objv, int imp
  *----------------------------------------------------------------------
  */
 
+/*
+ * Return TCL_OK if the value can be read as an integer. Replaces a
+ * conversion to the Tcl 8 "int" object type, which does not exist in
+ * Tcl 9.
+ */
+
+static int
+TnmMibIsInteger(Tcl_Obj *objPtr)
+{
+    Tcl_WideInt w;
+    return Tcl_GetWideIntFromObj((Tcl_Interp *) NULL, objPtr, &w);
+}
+
 int
 TnmMibGetValue(int syntax, Tcl_Obj *objPtr, TnmMibType *typePtr, Tcl_Obj **newPtr)
 {
@@ -1474,13 +1487,20 @@ TnmMibGetValue(int syntax, Tcl_Obj *objPtr, TnmMibType *typePtr, Tcl_Obj **newPt
     
     switch (syntax) {
     case ASN1_INTEGER:
-	result = Tcl_ConvertToType((Tcl_Interp *) NULL, objPtr,
-				   Tcl_GetObjType("int"));
+	/*
+	 * Tcl 8 registered an object type named "int", and converting to
+	 * it was how this tested whether a value was an integer. Tcl 9
+	 * unified its integer types and no longer registers that name, so
+	 * the lookup returns NULL and passing it on dereferences a null
+	 * pointer. Verified against both libraries: "int" is registered
+	 * under 8.6 and NULL under 9.0. Ask for the value instead, which
+	 * is portable and states what the code actually means.
+	 */
+	result = TnmMibIsInteger(objPtr);
 	if (result != TCL_OK && typePtr && newPtr) {
 	    *newPtr = TnmMibScanValue(typePtr, syntax, objPtr);
 	    if (newPtr) {
-		result = Tcl_ConvertToType((Tcl_Interp *) NULL, *newPtr,
-					   Tcl_GetObjType("int"));
+		result = TnmMibIsInteger(*newPtr);
 		if (result != TCL_OK) {
 		    Tcl_DecrRefCount(*newPtr);
 		    *newPtr = NULL;
