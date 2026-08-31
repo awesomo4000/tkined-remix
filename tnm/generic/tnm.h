@@ -90,6 +90,20 @@ typedef long LONG;
 #include <tcl.h>
 
 /*
+ * Tcl_Size was introduced in Tcl 9.  tnm still supports building against
+ * Tcl 8.6, where Tcl object and list sizes are int-sized.
+ */
+#ifndef TCL_SIZE_MAX
+# define Tcl_GetSizeIntFromObj Tcl_GetIntFromObj
+# define TCL_SIZE_MAX      INT_MAX
+# ifndef Tcl_Size
+    typedef int Tcl_Size;
+# endif
+# define TCL_SIZE_MODIFIER ""
+#endif
+
+
+/*
  * The support follows the convention that a macro called BUILD_xxxx, where
  * xxxx is the name of a library we are building, is set on the compile line
  * for sources that are to be placed in the library.
