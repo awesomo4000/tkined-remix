@@ -11,8 +11,17 @@ _probe() {
     [ -n "$1" ] && [ -f "$1/lib/tclConfig.sh" ] && [ -f "$1/lib/tkConfig.sh" ]
 }
 
+# The vendored tree is preferred over anything on the system, so a build
+# does not depend on what happens to be installed. Callers set ROOT before
+# sourcing this; fall back to deriving it if they did not.
+if [ -z "$ROOT" ]; then
+    _here="$(cd "$(dirname "${BASH_SOURCE:-$0}")" 2>/dev/null && pwd)"
+    ROOT="$(cd "$_here/.." 2>/dev/null && pwd)"
+fi
+
 if [ -z "$TCLTK_PREFIX" ]; then
     for _c in \
+        "$ROOT/vendor/prefix" \
         "$(command -v brew >/dev/null 2>&1 && brew --prefix tcl-tk@8 2>/dev/null)" \
         /opt/homebrew/opt/tcl-tk@8 \
         /usr/local/opt/tcl-tk@8 \

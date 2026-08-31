@@ -12,8 +12,17 @@ Builds and runs on macOS (Apple Silicon) against Tcl/Tk 8.6.
 
 ## Quick start
 
-    brew install tcl-tk@8 autoconf    # autoconf generates configure, which is not committed
-    ./tools/build.sh
+    brew install autoconf     # configure is generated, not committed
+    ./tools/build.sh          # builds vendored Tcl/Tk on first run, then scotty
+
+Tcl/Tk is **vendored**: `tools/vendor-tcltk.sh` fetches pinned sources,
+verifies them against checksums taken from an independent source, and
+builds them into `vendor/prefix`. Nothing outside the repository is used,
+and the first build takes a few minutes longer while Tcl and Tk compile.
+
+To build against a system Tcl/Tk instead, set `TCLTK_PREFIX` to a prefix
+containing `tclConfig.sh` and `tkConfig.sh`; the vendoring is then skipped.
+Set `TCLTK_TARBALL_DIR` to build with no network access.
 
 Build output goes to `build/` and is gitignored. Nothing is installed
 outside the repository.
@@ -113,7 +122,8 @@ bitmap items to PostScript. See `specs/08-ui-modernization.md`.
 
 No machine-specific paths are committed:
 
-- `tools/tcl-env.sh` discovers Tcl/Tk (override with `TCLTK_PREFIX`).
+- `tools/tcl-env.sh` prefers the vendored Tcl/Tk, then falls back to a
+  system copy (override with `TCLTK_PREFIX`).
 - `tools/build.sh` derives the install prefix from the repo location.
 - `bin/*` export `TNM_LIBRARY` / `TKINED_LIBRARY`, which override the paths
   baked in at compile time, so a built tree can be moved and still run.
