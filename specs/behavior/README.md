@@ -32,6 +32,10 @@ two halves can be written in different languages, on different machines.
 
 Machine-readable companions live in [`schema/`](schema/).
 
+Defects found while extracting are recorded in
+[`../known-bugs.md`](../known-bugs.md) rather than only in prose, so they
+can be fixed in the port independently of the extraction.
+
 ## Conventions
 
 - **Ground truth is the source, not the manual.** Where a document states a

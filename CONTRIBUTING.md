@@ -65,6 +65,13 @@ move it to `specs/done/` in the same commit that completes it, with a
   it down.
 - Build output belongs in `build/`, which is gitignored.
 
+## Bugs
+
+Defects that are found but not fixed go in `specs/known-bugs.md`, with the
+evidence for each and enough detail to act on. Anything reproduced by
+measurement says so; anything suspected but unconfirmed says that too.
+Move an entry to the Fixed table in the same commit that fixes it.
+
 ## Upstream
 
     git fetch upstream          # https://github.com/flightaware/scotty
