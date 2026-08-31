@@ -27,7 +27,7 @@ two halves can be written in different languages, on different machines.
 | 01 | [Object model](01-object-model.md) | The 15 object types, their fields, capabilities, identity and the map file format |
 | 02 | [Protocol](02-ined-protocol.md) | The UI/logic boundary: transport, framing, all 62 commands |
 | 03 | Interaction model | Selection, dragging, grouping, annotation, context menus *(to be written)* |
-| 04 | Discovery algorithms | Sweep, netmask inference, topology, SNMP enrichment *(to be written)* |
+| 04 | [Discovery algorithms](04-discovery-algorithms.md) | Sweep, tracing, netmask and network inference, gateway detection, link inference |
 | 05 | [Layout algorithms](05-layout-algorithms.md) | Segment layout, grouping, incremental graph placement |
 
 Machine-readable companions live in [`schema/`](schema/).
