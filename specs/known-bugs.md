@@ -134,6 +134,22 @@ contains seven. One node was not returned by `retrieve`. May be related to
 B3, since both concern load fidelity. Worth confirming before trusting a
 loaded map to be complete.
 
+### B9 — Click selects the last candidate, not the topmost
+
+**Severity:** low. Wrong object toggles when objects overlap.
+**Where:** the select tool's click handler.
+**Found:** while extracting spec 03.
+
+When several objects lie under the pointer, the handler iterates the
+overlapping items and keeps the **last** one carrying an object id, then
+toggles that. The last item in the iteration is not the topmost one, so
+which object responds depends on internal drawing order rather than on
+what is visually on top.
+
+The hit-testing helper next to it already does this correctly, walking the
+z-order from the closest item outward. The click handler should use it
+instead of its own loop.
+
 ---
 
 ## Not our bug

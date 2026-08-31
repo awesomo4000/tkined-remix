@@ -26,9 +26,13 @@ two halves can be written in different languages, on different machines.
 |---|---|---|
 | 01 | [Object model](01-object-model.md) | The 15 object types, their fields, capabilities, identity and the map file format |
 | 02 | [Protocol](02-ined-protocol.md) | The UI/logic boundary: transport, framing, all 62 commands |
-| 03 | Interaction model | Selection, dragging, grouping, annotation, context menus *(to be written)* |
+| 03 | [Interaction model](03-interaction-model.md) | Modal tools, hit testing, selection, moving, annotation, context menus |
 | 04 | [Discovery algorithms](04-discovery-algorithms.md) | Sweep, tracing, netmask and network inference, gateway detection, link inference |
 | 05 | [Layout algorithms](05-layout-algorithms.md) | Segment layout, grouping, incremental graph placement |
+
+The core extraction is complete. What was deferred as a later layer: the
+28 bundled tools as a catalog, the monitoring and charting subsystem, the
+event system, and the world map views.
 
 Machine-readable companions live in [`schema/`](schema/).
 
