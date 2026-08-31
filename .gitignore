@@ -53,3 +53,9 @@ tkined/tkined
 
 # rpcgen inputs copied into tnm/ by the Makefile
 tnm/*.x
+
+# --- vendored Tcl/Tk: only tools/vendor-tcltk.sh is tracked ---
+vendor/cache/
+vendor/src/
+vendor/prefix/
+vendor/*.log

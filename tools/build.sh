@@ -5,6 +5,15 @@
 set -e
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Build the vendored Tcl/Tk if it is not already there. The script is
+# idempotent and returns immediately once the prefix exists, so this costs
+# nothing on a warm tree. Set TCLTK_PREFIX to build against a system copy
+# instead and this is skipped.
+if [ -z "$TCLTK_PREFIX" ] && [ ! -d "$ROOT/vendor/prefix" ]; then
+    "$ROOT/tools/vendor-tcltk.sh"
+fi
+
 . "$ROOT/tools/tcl-env.sh"
 
 BUILD="$ROOT/build"

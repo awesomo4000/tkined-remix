@@ -14,10 +14,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # autoconf/autoheader are required because configure is generated,
-      # not committed. The macOS runners do not ship them.
+      # Only autoconf now: Tcl/Tk is vendored and built from pinned,
+      # checksum-verified sources by tools/vendor-tcltk.sh. autoconf is
+      # still needed because configure is generated rather than committed,
+      # and the macOS runners do not ship it.
       - name: Install build dependencies
-        run: brew install tcl-tk@8 autoconf
+        run: brew install autoconf
+
+      # Building Tcl and Tk takes minutes, and only changes when the
+      # pinned version or checksums change, so key the cache on the
+      # vendoring script itself.
+      - name: Cache vendored Tcl/Tk
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor/cache
+            vendor/prefix
+          key: tcltk-${{ runner.os }}-${{ hashFiles('tools/vendor-tcltk.sh') }}
+
+      - name: Build vendored Tcl/Tk
+        run: ./tools/vendor-tcltk.sh
 
       - name: Build
         run: ./tools/build.sh
