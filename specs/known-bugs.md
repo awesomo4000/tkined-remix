@@ -194,3 +194,4 @@ real window.
 | F9 | A test used `192.169.173.173` as an unreachable address; it answers today | uses the reserved `192.0.2.1` |
 | F10 | A test required every host alias to resolve forward, which the macOS resolver breaks by returning a PTR name as an alias | skips aliases that do not resolve |
 | F11 | `l.smx` hardcoded a binary name that no longer exists | uses the running interpreter |
+| F12 | Show Toolbar did not draw the toolbar until some later event: the geometry manager defers its work to an idle callback, so the frame and everything in it stayed unmapped after the toggle returned | `update idletasks` after the toggle. Measured on both 8.6.18 and 9.0.4, so not a Tcl 9 regression |

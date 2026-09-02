@@ -997,6 +997,12 @@ proc Command__ToggleToolBox { editor } {
 	grid remove $w.tools
         Tool__Select $editor
     }
+    # The geometry manager defers its work to an idle callback, so without
+    # this the toolbar does not actually appear until some later event
+    # happens to wake the event loop. Measured: immediately after the grid
+    # call the frame and every widget in it still report ismapped 0, and
+    # only become mapped once idle tasks run.
+    update idletasks
 }
 
 proc Command__LockEditor { editor } {
